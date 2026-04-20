@@ -1,15 +1,46 @@
+# Node
 node_modules/
+
+# Environment variables
 .env
-*.log
-logs/
-dist/
-build/
+.env.*
+
+# Gradle
 .gradle/
+build/
+app/build/
+*/build/
+
+# Local config
 local.properties
-captures/
+
+# IDE
 .idea/
 *.iml
+*.iws
+*.ipr
+
+# Keystores / secrets
+*.jks
+*.keystore
+
+# Outputs
+*.apk
+*.ap_
+*.dex
+*.class
+
+# Logs
+*.log
+logs/
+
+# Captures / profiling
+captures/
 *.hprof
+
+# OS
 .DS_Store
 Thumbs.db
-.env.*
+
+# NDK
+ndkBuild/
