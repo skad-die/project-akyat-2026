@@ -1,0 +1,15 @@
+node_modules/
+.env
+*.log
+logs/
+dist/
+build/
+.gradle/
+local.properties
+captures/
+.idea/
+*.iml
+*.hprof
+.DS_Store
+Thumbs.db
+.env.*
