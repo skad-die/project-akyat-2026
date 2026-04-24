@@ -46,6 +46,10 @@ app.post("/register", async (req, res) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: "Email already exists" });
 
+    if (!email.includes("@")) {
+      return res.status(400).json({ message: "Invalid email" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     await User.create({ name, email, password: hashedPassword });
 
@@ -119,6 +123,8 @@ app.delete("/hikes/:id", auth, async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
