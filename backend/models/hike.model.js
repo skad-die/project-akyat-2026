@@ -1,39 +1,46 @@
 const mongoose = require("mongoose");
 
 const HikeSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: [true, "Please provide a name for this hike"],
-    trim: true,
-    index: true
-  },
-  date: {
-    type: Date,
-    default: Date.now
-  },
-  distance: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  duration: {
-    type: Number,
-    required: true
-  },
-  elevationGain: Number,
-  difficulty: {
-    type: String,
-    enum: ['Easy', 'Moderate', 'Hard', 'Expert'],
-    default: 'Moderate'
-  },
-  pace: {
-    type: Number,
-    default: 0
-  },
-  calories: {
-    type: Number,
-    default: 0
-  }
+    duration: {
+        type: String, // "hh:mm:ss" TODO change to proper datatype
+        required: true
+    },
+
+    distanceKm: {
+        type: Number,
+        required: true,
+        min: 0
+    },
+
+    calories: {
+        type: Number,
+        min: 0,
+        default: 0
+    },
+
+    // km/h
+    speed: {
+    avg: { type: Number, min: 0 },
+    max: { type: Number, min: 0 }
+    },
+
+    // min/km
+    pace: {
+        avg: { type: Number, min: 0 },
+        max: { type: Number, min: 0 }
+    },
+
+    elevation: {
+        min: Number,
+        max: Number
+    },
+
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    }
+
 }, {
   timestamps: true
 });
