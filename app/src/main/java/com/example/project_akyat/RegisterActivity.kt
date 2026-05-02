@@ -1,5 +1,6 @@
 package com.example.project_akyat
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -18,18 +19,31 @@ class RegisterActivity : AppCompatActivity() {
         val etEmail = findViewById<EditText>(R.id.etEmail)
         val etPassword = findViewById<EditText>(R.id.etPassword)
         val btnRegister = findViewById<Button>(R.id.btnRegister)
+        val btnGoToLogin = findViewById<Button>(R.id.btnGoToLogin)
 
         btnRegister.setOnClickListener {
-            val name = etName.text.toString()
-            val email = etEmail.text.toString()
-            val password = etPassword.text.toString()
+            val name = etName.text.toString().trim()
+            val email = etEmail.text.toString().trim()
+            val password = etPassword.text.toString().trim()
+
+            // TODO: Better Input validations!
+            if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "All fields required", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
             registerUser(name, email, password)
+        }
+
+        btnGoToLogin.setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
         }
     }
 
     private fun registerUser(name: String, email: String, password: String) {
         val request = RegisterRequest(name, email, password)
+
         RetrofitClient.api.register(request)
             .enqueue(object : retrofit2.Callback<Void> {
                 override fun onResponse(call: retrofit2.Call<Void>, response: retrofit2.Response<Void>) {
@@ -37,6 +51,8 @@ class RegisterActivity : AppCompatActivity() {
                         Toast.makeText(this@RegisterActivity,
                             "Registered successfully",
                             Toast.LENGTH_SHORT).show()
+                            startActivity(Intent(this@RegisterActivity, LoginActivity::class.java))
+                            finish()
                     } else {
                         Toast.makeText(this@RegisterActivity,
                             "Error: ${response.code()}",
