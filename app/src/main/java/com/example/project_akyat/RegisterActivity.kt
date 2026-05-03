@@ -18,6 +18,7 @@ class RegisterActivity : AppCompatActivity() {
         val etName = findViewById<EditText>(R.id.etName)
         val etEmail = findViewById<EditText>(R.id.etEmail)
         val etPassword = findViewById<EditText>(R.id.etPassword)
+        val etConfirmPassword = findViewById<EditText>(R.id.etConfirmPassword)
         val btnRegister = findViewById<Button>(R.id.btnRegister)
         val btnGoToLogin = findViewById<Button>(R.id.btnGoToLogin)
 
@@ -25,10 +26,16 @@ class RegisterActivity : AppCompatActivity() {
             val name = etName.text.toString().trim()
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString().trim()
+            val confirmPassword = etConfirmPassword.text.toString().trim()
 
             // TODO: Better Input validations!
             if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "All fields required", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if(password != confirmPassword) {
+                etConfirmPassword.error = "Passwords do not match"
                 return@setOnClickListener
             }
 
