@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.project_akyat.model.LoginRequest
 import com.example.project_akyat.model.LoginResponse
 import com.example.project_akyat.network.RetrofitClient
+import com.example.project_akyat.network.TokenManager
 
 class LoginActivity : AppCompatActivity() {
 
@@ -48,47 +49,31 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveToken(token: String) {
-        val prefs = getSharedPreferences("app", MODE_PRIVATE)
-        prefs.edit().putString("token", token).apply()
-    }
 
     private fun loginUser(email: String, password: String) {
-
         val request = LoginRequest(email, password)
+        val api = RetrofitClient.create(this)
 
-        RetrofitClient.api.login(request)
-            .enqueue(object : retrofit2.Callback<LoginResponse> {
-
-                override fun onResponse(
-                    call: retrofit2.Call<LoginResponse>,
-                    response: retrofit2.Response<LoginResponse>
-                ) {
-                    if (response.isSuccessful) {
-
-                        val token = response.body()?.token
-                        if (token != null) {
-                            saveToken(token)
-                            startActivity(Intent(this@LoginActivity, MainActivity::class.java))
-                            finish()
-                        } else {
-                            Toast.makeText(this@LoginActivity, "Invalid response", Toast.LENGTH_SHORT).show()
-                        }
-
+        api.login(request).enqueue(object : retrofit2.Callback<LoginResponse> {
+            override fun onResponse(call: retrofit2.Call<LoginResponse>, response: retrofit2.Response<LoginResponse>) {
+                if (response.isSuccessful) {
+                    val token = response.body()?.token
+                    if (token != null) {
+                        TokenManager.saveToken(this@LoginActivity, token)
+                        startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                        finish()
                     } else {
-                        Toast.makeText(this@LoginActivity,
-                            "Login failed",
-                            Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@LoginActivity, "Invalid response", Toast.LENGTH_SHORT).show()
                     }
-                }
 
-                override fun onFailure(
-                    call: retrofit2.Call<LoginResponse>,
-                    t: Throwable
-                ) {
-                    Toast.makeText(this@LoginActivity,
-                        "Error: ${t.message}",
-                        Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@LoginActivity, "Login failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            // TODO: Will change to a friendly generic message instead of error code later on
+            override fun onFailure(call: retrofit2.Call<LoginResponse>, t: Throwable) {
+                    Toast.makeText(this@LoginActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
                 }
             })
     }

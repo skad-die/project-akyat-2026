@@ -1,10 +1,12 @@
 package com.example.project_akyat.network
 
+import com.example.project_akyat.model.Hike
 import com.example.project_akyat.model.LoginRequest
 import com.example.project_akyat.model.LoginResponse
 import com.example.project_akyat.model.RegisterRequest
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface ApiService {
@@ -12,4 +14,10 @@ interface ApiService {
     fun login(@Body request: LoginRequest): Call<LoginResponse>
     @POST("register")
     fun register(@Body request: RegisterRequest): Call<Void>
+
+    @GET("hikes")
+    fun getHikes(): Call<List<Hike>>
+
+    @POST("hikes")
+    fun createHike(@Body hike: Hike): Call<Hike>
 }
