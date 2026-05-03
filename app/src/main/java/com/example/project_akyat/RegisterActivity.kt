@@ -28,7 +28,6 @@ class RegisterActivity : AppCompatActivity() {
             val password = etPassword.text.toString().trim()
             val confirmPassword = etConfirmPassword.text.toString().trim()
 
-            // TODO: Better Input validations!
             if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "All fields required", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -36,6 +35,16 @@ class RegisterActivity : AppCompatActivity() {
 
             if(password != confirmPassword) {
                 etConfirmPassword.error = "Passwords do not match"
+                return@setOnClickListener
+            }
+
+            if(password.length < 8) {
+                etPassword.error = "Password must be at least 8 characters"
+                return@setOnClickListener
+            }
+
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                etEmail.error = "Invalid email format"
                 return@setOnClickListener
             }
 
