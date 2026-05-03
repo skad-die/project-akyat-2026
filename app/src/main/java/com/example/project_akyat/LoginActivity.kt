@@ -33,6 +33,11 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                Toast.makeText(this, "Invalid email or password", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             loginUser(email, password)
         }
 
