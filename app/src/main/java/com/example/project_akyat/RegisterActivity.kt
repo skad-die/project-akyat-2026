@@ -44,7 +44,7 @@ class RegisterActivity : AppCompatActivity() {
             }
 
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                etEmail.error = "Invalid email format"
+                etEmail.error = "Please enter a valid email address"
                 return@setOnClickListener
             }
 
