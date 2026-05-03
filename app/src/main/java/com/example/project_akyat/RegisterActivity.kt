@@ -33,13 +33,13 @@ class RegisterActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            if(password != confirmPassword) {
-                etConfirmPassword.error = "Passwords do not match"
+            if(password.length < 8) {
+                etPassword.error = "Password must be at least 8 characters"
                 return@setOnClickListener
             }
 
-            if(password.length < 8) {
-                etPassword.error = "Password must be at least 8 characters"
+            if(password != confirmPassword) {
+                etConfirmPassword.error = "Passwords do not match"
                 return@setOnClickListener
             }
 
@@ -59,28 +59,23 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun registerUser(name: String, email: String, password: String) {
         val request = RegisterRequest(name, email, password)
+        val api = RetrofitClient.create(this)
 
-        RetrofitClient.api.register(request)
-            .enqueue(object : retrofit2.Callback<Void> {
-                override fun onResponse(call: retrofit2.Call<Void>, response: retrofit2.Response<Void>) {
-                    if (response.isSuccessful) {
-                        Toast.makeText(this@RegisterActivity,
-                            "Registered successfully",
-                            Toast.LENGTH_SHORT).show()
-                            startActivity(Intent(this@RegisterActivity, LoginActivity::class.java))
-                            finish()
-                    } else {
-                        Toast.makeText(this@RegisterActivity,
-                            "Error: ${response.code()}",
-                            Toast.LENGTH_SHORT).show()
-                    }
+        api.register(request).enqueue(object : retrofit2.Callback<Void> {
+            override fun onResponse(call: retrofit2.Call<Void>, response: retrofit2.Response<Void>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(this@RegisterActivity, "Registered successfully", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this@RegisterActivity, LoginActivity::class.java))
+                    finish()
+                } else {
+                    Toast.makeText(this@RegisterActivity, "Error: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
+            }
 
-                override fun onFailure(call: retrofit2.Call<Void>, t: Throwable) {
-                    Toast.makeText(this@RegisterActivity,
-                        "Failed: ${t.message}",
-                        Toast.LENGTH_SHORT).show()
-                }
-            })
+            override fun onFailure(
+                call: retrofit2.Call<Void>, t: Throwable) {
+                Toast.makeText(this@RegisterActivity, "Failed: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }
