@@ -12,21 +12,27 @@ const User = require("./models/user.model");
 const Hike = require("./models/hike.model");
 
 const app = express();
+const cors = require("cors");
+
 app.use(express.json());
+app.use(cors());
+
 connectDB();
 
 // AUTH MIDDLEWARE
 const auth = (req, res, next) => {
-  const authHeader = req.header("Authorization");
-  if (!authHeader) return res.status(401).json({ message: "No token" });
+    const authHeader = req.header("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ message: "No or invalid token format" });
+    }
 
-  const token = authHeader.split(" ")[1];
-  try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET);
-    next();
-  } catch (err) {
-    res.status(401).json({ message: "Invalid token" });
-  }
+    const token = authHeader.split(" ")[1];
+    try {
+        req.user = jwt.verify(token, process.env.JWT_SECRET);
+        next();
+    } catch (err) {
+        return res.status(401).json({ message: "Invalid token" });
+    }
 };
 
 // TEST
@@ -50,6 +56,10 @@ app.post("/register", async (req, res) => {
       return res.status(400).json({ message: "Invalid email" });
     }
 
+    if (password.length < 8) {
+      return res.status(400).json({ message: "Password must be at least 8 characters" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     await User.create({ name, email, password: hashedPassword });
 
@@ -64,11 +74,15 @@ app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      return res.status(400).json({ message: "All fields required" });
+    }
+
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid password" });
+    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
     res.json({ token });
