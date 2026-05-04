@@ -3,7 +3,12 @@ package com.example.project_akyat
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -11,6 +16,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -33,6 +39,10 @@ class StartHikeActivity : AppCompatActivity() {
     private var startTimeMillis = 0L
     private var totalDistanceKm = 0.0
     private var isTracking = false
+    private lateinit var sensorManager: SensorManager
+    private var stepDetectorSensor: Sensor? = null
+    private var currentSteps = 0
+    private lateinit var tvSteps: TextView
 
     private val timerRunnable = object : Runnable {
         override fun run() {
@@ -52,6 +62,7 @@ class StartHikeActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -63,10 +74,13 @@ class StartHikeActivity : AppCompatActivity() {
             insets
         }
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
         tvDuration = findViewById(R.id.tvDuration)
         tvDistance = findViewById(R.id.tvDistance)
+        tvSteps = findViewById(R.id.tvSteps)
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+        stepDetectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)
 
         val btnStart = findViewById<Button>(R.id.btnStart)
         val btnStop = findViewById<Button>(R.id.btnStop)
@@ -86,6 +100,7 @@ class StartHikeActivity : AppCompatActivity() {
             val intent = Intent(this, HikeSummaryActivity::class.java).apply {
                 putExtra("duration", tvDuration.text.toString())
                 putExtra("distance", totalDistanceKm)
+                putExtra("steps", currentSteps)
             }
 
             startActivity(intent)
@@ -93,14 +108,16 @@ class StartHikeActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun checkPermissionAndStart() {
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                100
-            )
+        val permissions = mutableListOf<String>()
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
+        if (checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED)
+            permissions.add(Manifest.permission.ACTIVITY_RECOGNITION)
+
+        if (permissions.isNotEmpty()) {
+            requestPermissions(permissions.toTypedArray(), 100)
         } else {
             startTracking()
         }
@@ -114,12 +131,16 @@ class StartHikeActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        if (requestCode == 100 && grantResults.isNotEmpty() &&
-            grantResults[0] == PackageManager.PERMISSION_GRANTED
-        ) {
-            startTracking()
-        } else {
-            Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show()
+        if (requestCode == 100) {
+            val locationGranted = grantResults.getOrNull(
+                permissions.indexOf(Manifest.permission.ACCESS_FINE_LOCATION)
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (locationGranted) {
+                startTracking()
+            } else {
+                Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -128,9 +149,15 @@ class StartHikeActivity : AppCompatActivity() {
         locations.clear()
         totalDistanceKm = 0.0
         tvDistance.text = getString(R.string.distance_format, 0.0)
-
+        tvSteps.text = getString(R.string.active_step_counter_default)
         startTimeMillis = System.currentTimeMillis()
         handler.post(timerRunnable)
+
+        currentSteps = 0
+        stepDetectorSensor?.let {
+            sensorManager.registerListener(stepListener, it, SensorManager.SENSOR_DELAY_FASTEST)
+        } ?: Toast.makeText(this, "Step counter not available on this device", Toast.LENGTH_SHORT).show()
+
 
         val request = LocationRequest.Builder(
             Priority.PRIORITY_HIGH_ACCURACY,
@@ -172,6 +199,7 @@ class StartHikeActivity : AppCompatActivity() {
 
     private fun stopTracking() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
+        if (stepDetectorSensor != null) sensorManager.unregisterListener(stepListener)
         handler.removeCallbacks(timerRunnable)
         isTracking = false
     }
@@ -202,5 +230,15 @@ class StartHikeActivity : AppCompatActivity() {
         val centralAngle = 2 * atan2(sqrt(a), sqrt(1 - a))
 
         return earthRadiusKm * centralAngle
+    }
+
+    private val stepListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) {
+            if (event.sensor.type == Sensor.TYPE_STEP_DETECTOR) {
+                currentSteps++
+                tvSteps.text = getString(R.string.active_step_counter, currentSteps)
+            }
+        }
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
     }
 }

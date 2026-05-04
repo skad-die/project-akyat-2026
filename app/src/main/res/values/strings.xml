@@ -26,6 +26,7 @@
     <string name="btn_save">Save</string>
     <string name="btn_discard">Discard</string>
     <string name="active_speed">Speed: 0.0 km</string>
-    <string name="active_step_counter">0 steps</string>
+    <string name="active_step_counter">%d steps</string>
+    <string name="active_step_counter_default">0 steps</string>
     <string name="summary_step_counter">Steps: 0</string>
 </resources>

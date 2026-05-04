@@ -47,7 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="@string/active_step_counter"
+            android:text="@string/active_step_counter_default"
             android:textSize="24sp"
             android:textColor="?android:attr/textColorSecondary" />
 
