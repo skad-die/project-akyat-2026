@@ -3,4 +3,15 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="distance_format">%.2f km</string>
     <string name="duration_format">Duration: %1$s</string>
+    <string name="avg_speed_0_0">Avg Speed: 0.0</string>
+    <string name="max_speed_0_0">Max Speed: 0.0</string>
+    <string name="_0_00_km">0.00 km</string>
+    <string name="_0_kcal">0 kcal</string>
+    <string name="max_pace_0_00">Max Pace: 0\'00\\</string>
+    <string name="avg_pace_0_00">Avg Pace: 0\'00\\</string>
+    <string name="hike_statistics">Hike Statistics</string>
+    <string name="_00_00_00">00:00:00</string>
+    <string name="elevation_min_0m_max_0m">Elevation: Min 0m / Max 0m</string>
+    <string name="stop">Stop</string>
+    <string name="start">Start</string>
 </resources>
