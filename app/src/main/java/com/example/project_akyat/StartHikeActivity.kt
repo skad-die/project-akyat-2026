@@ -21,6 +21,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import java.util.Locale
 
 class StartHikeActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -39,7 +40,7 @@ class StartHikeActivity : AppCompatActivity() {
             val seconds = (elapsed / 1000) % 60
             val minutes = (elapsed / 60000) % 60
             val hours = elapsed / 3600000
-            tvDuration.text = String.format("%02d:%02d:%02d", hours, minutes, seconds)
+            tvDuration.text = String.format(Locale.getDefault(),"%02d:%02d:%02d", hours, minutes, seconds)
             handler.postDelayed(this, 1000)
         }
     }
@@ -115,7 +116,7 @@ class StartHikeActivity : AppCompatActivity() {
                         val lastLocation = locations.last()
                         val segmentDistance = lastLocation.distanceTo(location) / 1000.0
                         totalDistanceKm += segmentDistance
-                        tvDistance.text = "${"%.2f".format(totalDistanceKm)} km"
+                        tvDistance.text = getString(R.string.distance_format, totalDistanceKm)
                     }
                     locations.add(location)
                 }

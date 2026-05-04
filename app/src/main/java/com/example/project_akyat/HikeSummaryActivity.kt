@@ -29,8 +29,8 @@ class HikeSummaryActivity : AppCompatActivity() {
         val duration = intent.getStringExtra("duration") ?: "00:00:00"
         val distance = intent.getDoubleExtra("distance", 0.0)
 
-        tvDuration.text = "Duration: $duration"
-        tvDistance.text = "Distance: ${"%.2f".format(distance)} km"
+        tvDuration.text = getString(R.string.duration_format, duration)
+        tvDistance.text = getString(R.string.distance_format, distance)
 
         btnDiscard.setOnClickListener {
             startActivity(Intent(this, StartHikeActivity::class.java))
