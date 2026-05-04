@@ -2,103 +2,117 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main"
-    android:padding="16dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:animateLayoutChanges="true">
 
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hike_statistics"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:textSize="24sp" />
-
-    <TextView
-        android:id="@+id/tvDuration"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/_00_00_00"
-        android:textSize="48sp"
-        android:textStyle="bold"
-        android:layout_below="@id/tvTitle"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp" />
-
-    <TextView
-        android:id="@+id/tvDistance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/_0_00_km"
-        android:textSize="32sp"
-        android:layout_below="@id/tvDuration"
-        android:layout_centerHorizontal="true" />
-
-    <TextView
-        android:id="@+id/tvCalories"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/_0_kcal"
-        android:textSize="20sp"
-        android:layout_below="@id/tvDistance"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp" />
+        android:text="@string/hike_statistics"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
     <LinearLayout
-        android:id="@+id/llMetricsRow"
+        android:id="@+id/llPrimaryStats"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:baselineAligned="false"
-        android:orientation="horizontal"
-        android:layout_below="@id/tvCalories"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/active_duration"
+            android:textSize="56sp"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" />
+
+        <TextView
+            android:id="@+id/tvDistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/distance_in_km"
+            android:textSize="32sp" />
+
+        <TextView
+            android:id="@+id/tvSteps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/active_step_counter"
+            android:textSize="24sp"
+            android:textColor="?android:attr/textColorSecondary" />
+
+        <TextView
+            android:id="@+id/tvCalories"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/active_calories"
+            android:textSize="18sp"
+            android:alpha="0.8" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llSecondaryMetrics"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/llPrimaryStats"
+        android:layout_marginTop="32dp"
         android:weightSum="2">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tvSpeedAvg"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical">
-            <TextView android:id="@+id/tvSpeedAvg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/avg_speed_0_0" />
-            <TextView android:id="@+id/tvSpeedMax" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/max_speed_0_0" />
-        </LinearLayout>
+            android:text="@string/active_speed"
+            android:textSize="16sp" />
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tvPaceAvg"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical">
-            <TextView android:id="@+id/tvPaceAvg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/avg_pace_0_00" />
-            <TextView android:id="@+id/tvPaceMax" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/max_pace_0_00" />
-        </LinearLayout>
+            android:text="@string/active_avg_pace"
+            android:textSize="16sp" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/tvElevation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/elevation_min_0m_max_0m"
-        android:layout_below="@id/llMetricsRow"
+        android:layout_below="@id/llSecondaryMetrics"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"
+        android:text="@string/active_elevation"
+        android:textSize="16sp" />
 
     <Button
         android:id="@+id/btnStop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/stop"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/btn_stop" />
 
     <Button
         android:id="@+id/btnStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/start"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
         android:layout_above="@id/btnStop"
-        android:layout_centerHorizontal="true" />
+        android:layout_marginHorizontal="32dp"
+        android:text="@string/btn_start" />
 
 </RelativeLayout>
