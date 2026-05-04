@@ -1,6 +1,7 @@
 package com.example.project_akyat
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -67,6 +68,12 @@ class StartHikeActivity : AppCompatActivity() {
 
         btnStop.setOnClickListener {
             stopTracking()
+            val intent = Intent(this, HikeSummaryActivity::class.java).apply {
+                putExtra("duration", tvDuration.text.toString())
+                putExtra("distance", totalDistanceKm)
+            }
+            startActivity(intent)
+            finish()
             Toast.makeText(this, "Hike stopped! Distance: ${"%.2f".format(totalDistanceKm)} km", Toast.LENGTH_LONG).show()
         }
     }
