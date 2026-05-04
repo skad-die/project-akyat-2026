@@ -1,11 +1,14 @@
 package com.example.project_akyat.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.project_akyat.StartHikeActivity
 import com.example.project_akyat.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -36,6 +39,15 @@ class DashboardFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_dashboard, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val fab = view.findViewById<FloatingActionButton>(R.id.fabAddHike)
+        fab.setOnClickListener {
+            startActivity(Intent(requireContext(), StartHikeActivity::class.java))
+        }
     }
 
     companion object {
