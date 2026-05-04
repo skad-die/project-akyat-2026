@@ -15,32 +15,39 @@ import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
+import com.google.android.gms.location.*
 import java.util.Locale
+import kotlin.math.*
 
 class StartHikeActivity : AppCompatActivity() {
+
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
+
     private lateinit var tvDuration: TextView
     private lateinit var tvDistance: TextView
 
     private val locations = mutableListOf<Location>()
     private val handler = Handler(Looper.getMainLooper())
+
     private var startTimeMillis = 0L
     private var totalDistanceKm = 0.0
+    private var isTracking = false
 
     private val timerRunnable = object : Runnable {
         override fun run() {
             val elapsed = System.currentTimeMillis() - startTimeMillis
+
             val seconds = (elapsed / 1000) % 60
             val minutes = (elapsed / 60000) % 60
             val hours = elapsed / 3600000
-            tvDuration.text = String.format(Locale.getDefault(),"%02d:%02d:%02d", hours, minutes, seconds)
+
+            tvDuration.text = String.format(
+                Locale.getDefault(),
+                "%02d:%02d:%02d",
+                hours, minutes, seconds
+            )
+
             handler.postDelayed(this, 1000)
         }
     }
@@ -49,9 +56,10 @@ class StartHikeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_start_hike)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
             insets
         }
 
@@ -59,23 +67,29 @@ class StartHikeActivity : AppCompatActivity() {
 
         tvDuration = findViewById(R.id.tvDuration)
         tvDistance = findViewById(R.id.tvDistance)
+
         val btnStart = findViewById<Button>(R.id.btnStart)
         val btnStop = findViewById<Button>(R.id.btnStop)
 
         btnStart.setOnClickListener {
+            if (isTracking) return@setOnClickListener
+
             Toast.makeText(this, "Hike started!", Toast.LENGTH_SHORT).show()
             checkPermissionAndStart()
         }
 
         btnStop.setOnClickListener {
+            if (!isTracking) return@setOnClickListener
+
             stopTracking()
+
             val intent = Intent(this, HikeSummaryActivity::class.java).apply {
                 putExtra("duration", tvDuration.text.toString())
                 putExtra("distance", totalDistanceKm)
             }
+
             startActivity(intent)
             finish()
-            Toast.makeText(this, "Hike stopped! Distance: ${"%.2f".format(totalDistanceKm)} km", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -92,18 +106,32 @@ class StartHikeActivity : AppCompatActivity() {
         }
     }
 
-    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 100 && grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
+
+        if (requestCode == 100 && grantResults.isNotEmpty() &&
+            grantResults[0] == PackageManager.PERMISSION_GRANTED
+        ) {
             startTracking()
         } else {
             Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show()
         }
     }
 
-    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     private fun startTracking() {
+        locations.clear()
+        totalDistanceKm = 0.0
+        tvDistance.text = getString(R.string.distance_format, 0.0)
+
+        startTimeMillis = System.currentTimeMillis()
+        handler.post(timerRunnable)
+
         val request = LocationRequest.Builder(
             Priority.PRIORITY_HIGH_ACCURACY,
             2000
@@ -112,29 +140,67 @@ class StartHikeActivity : AppCompatActivity() {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 for (location in result.locations) {
-                    if (locations.isNotEmpty()) {
-                        val lastLocation = locations.last()
-                        val segmentDistance = lastLocation.distanceTo(location) / 1000.0
-                        totalDistanceKm += segmentDistance
-                        tvDistance.text = getString(R.string.distance_format, totalDistanceKm)
-                    }
-                    locations.add(location)
+                    handleLocation(location)
                 }
             }
         }
 
         fusedLocationClient.requestLocationUpdates(request, locationCallback, mainLooper)
-        startTimeMillis = System.currentTimeMillis()
-        handler.post(timerRunnable)
+        isTracking = true
+    }
+
+    private fun handleLocation(location: Location) {
+        if (locations.isNotEmpty()) {
+            val last = locations.last()
+
+            val segmentDistance = haversineDistance(
+                last.latitude,
+                last.longitude,
+                location.latitude,
+                location.longitude
+            )
+
+            // FILTER GPS NOISE (ignore < 1 meter)
+            if (segmentDistance >= 0.001) {
+                totalDistanceKm += segmentDistance
+                tvDistance.text = getString(R.string.distance_format, totalDistanceKm)
+            }
+        }
+
+        locations.add(location)
     }
 
     private fun stopTracking() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
         handler.removeCallbacks(timerRunnable)
+        isTracking = false
     }
 
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacks(timerRunnable)
+    }
+
+    private fun haversineDistance(
+        startLat: Double, startLon: Double,
+        endLat: Double, endLon: Double
+    ): Double {
+
+        val earthRadiusKm = 6371.0
+
+        val deltaLatRad = Math.toRadians(endLat - startLat)
+        val deltaLonRad = Math.toRadians(endLon - startLon)
+
+        val startLatRad = Math.toRadians(startLat)
+        val endLatRad = Math.toRadians(endLat)
+
+        val a = sin(deltaLatRad / 2).pow(2) +
+                cos(startLatRad) *
+                cos(endLatRad) *
+                sin(deltaLonRad / 2).pow(2)
+
+        val centralAngle = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+        return earthRadiusKm * centralAngle
     }
 }
