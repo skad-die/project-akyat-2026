@@ -4,8 +4,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:animateLayoutChanges="true">
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/tvTitle"
@@ -21,7 +20,8 @@
         android:id="@+id/llPrimaryStats"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_below="@id/tvTitle"
+        android:layout_marginTop="32dp"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -31,8 +31,7 @@
             android:layout_height="wrap_content"
             android:text="@string/active_duration"
             android:textSize="56sp"
-            android:textStyle="bold"
-            android:textColor="?android:attr/textColorPrimary" />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvDistance"
@@ -48,17 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:text="@string/active_step_counter_default"
-            android:textSize="24sp"
-            android:textColor="?android:attr/textColorSecondary" />
-
-        <TextView
-            android:id="@+id/tvCalories"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/active_calories"
-            android:textSize="18sp"
-            android:alpha="0.8" />
+            android:textSize="24sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -94,7 +83,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/llSecondaryMetrics"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:text="@string/active_elevation"
         android:textSize="16sp" />
 
@@ -113,6 +102,6 @@
         android:layout_height="60dp"
         android:layout_above="@id/btnStop"
         android:layout_marginHorizontal="32dp"
+        android:layout_marginBottom="8dp"
         android:text="@string/btn_start" />
-
 </RelativeLayout>

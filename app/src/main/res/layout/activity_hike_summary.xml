@@ -1,120 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main"
+<!-- ScrollView prevents overlapping on small screens -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:animateLayoutChanges="true">
+    android:fillViewport="true">
 
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:text="@string/summary_title"
-        android:textSize="24sp"
-        android:textStyle="bold" />
-
-    <LinearLayout
-        android:id="@+id/llPrimaryStats"
+    <RelativeLayout
+        android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:padding="16dp"
+        android:animateLayoutChanges="true">
 
         <TextView
-            android:id="@+id/tvDuration"
+            android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/summary_duration"
-            android:textSize="32sp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:text="@string/summary_title"
+            android:textSize="24sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tvDistance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/summary_distance"
-            android:textSize="26sp" />
-
-        <TextView
-            android:id="@+id/tvSteps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/summary_step_counter"
-            android:textSize="22sp" />
-
-        <TextView
-            android:id="@+id/tvCalories"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/summary_calories"
-            android:textSize="18sp"
-            android:alpha="0.8" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/llSecondaryMetrics"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/llPrimaryStats"
-        android:layout_marginTop="32dp"
-        android:baselineAligned="false"
-        android:weightSum="2">
-
         <LinearLayout
-            android:layout_width="0dp"
+            android:id="@+id/llPrimaryStats"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_below="@id/tvTitle"
+            android:layout_marginTop="32dp"
             android:gravity="center"
             android:orientation="vertical">
-            <TextView android:id="@+id/tvSpeedAvg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/summary_speed_avg" />
-            <TextView android:id="@+id/tvSpeedMax" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/summary_speed_max" />
+
+            <TextView
+                android:id="@+id/tvDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/summary_duration"
+                android:textSize="32sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvDistance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/summary_distance"
+                android:textSize="26sp" />
+
+            <TextView
+                android:id="@+id/tvSteps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/summary_step_counter"
+                android:textSize="22sp" />
+
+            <TextView
+                android:id="@+id/tvCalories"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/summary_calories"
+                android:textSize="18sp"
+                android:alpha="0.8" />
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:id="@+id/llSecondaryMetrics"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-            <TextView android:id="@+id/tvPaceAvg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/summary_pace_avg" />
-            <TextView android:id="@+id/tvPaceMax" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/summary_pace_max" />
+            android:layout_below="@id/llPrimaryStats"
+            android:layout_marginTop="32dp"
+            android:baselineAligned="false"
+            android:weightSum="2">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/avg_speed" android:textSize="10sp" android:alpha="0.6"
+                    tools:ignore="SmallSp" />
+                <TextView android:id="@+id/tvSpeedAvg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/summary_speed_avg" android:textStyle="bold" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/max_speed" android:textSize="10sp" android:alpha="0.6" android:layout_marginTop="8dp"
+                    tools:ignore="SmallSp" />
+                <TextView android:id="@+id/tvSpeedMax" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/summary_speed_max" android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/avg_pace" android:textSize="10sp" android:alpha="0.6"
+                    tools:ignore="SmallSp" />
+                <TextView android:id="@+id/tvPaceAvg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/summary_pace_avg" android:textStyle="bold" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/max_pace" android:textSize="10sp" android:alpha="0.6" android:layout_marginTop="8dp"
+                    tools:ignore="SmallSp" />
+                <TextView android:id="@+id/tvPaceMax" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/summary_pace_max" android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
 
-    <TextView
-        android:id="@+id/tvElevation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/llSecondaryMetrics"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:text="@string/summary_elevation"
-        android:textSize="16sp" />
+        <TextView
+            android:id="@+id/tvElevation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/llSecondaryMetrics"
+            android:text="@string/summary_elevation"
+            android:textSize="16sp"
+            android:alpha="0.7" />
 
-    <Button
-        android:id="@+id/btnDiscard"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginHorizontal="32dp"
-        android:layout_marginBottom="16dp"
-        android:text="@string/btn_discard" />
+        <Button
+            android:id="@+id/btnDiscard"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/btn_discard" />
 
-    <Button
-        android:id="@+id/btnSave"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_above="@id/btnDiscard"
-        android:layout_marginHorizontal="32dp"
-        android:layout_marginBottom="8dp"
-        android:text="@string/btn_save" />
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_above="@id/btnDiscard"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/btn_save" />
 
-</RelativeLayout>
+
+    </RelativeLayout>
+</ScrollView>

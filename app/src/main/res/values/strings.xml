@@ -1,32 +1,46 @@
 <resources>
     <string name="app_name">Project-Akyat</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="distance_format">%.2f km</string>
+
+    <string name="distance_format">%.1f km</string>
     <string name="duration_format">Duration: %1$s</string>
-    <string name="avg_speed_0_0">Avg Speed: 0.0</string>
-    <string name="max_speed_0_0">Max Speed: 0.0</string>
-    <string name="distance_in_km">0.00 km</string>
-    <string name="active_calories">0 kcal</string>
-    <string name="max_pace_0_00">Max Pace: 0\'00\\</string>
-    <string name="active_avg_pace">Avg Pace: 0\'00\\</string>
+    <string name="avg_speed_format">%.1f km/h</string>
+    <string name="pace_format">%s /km</string>
+
     <string name="hike_statistics">Hike Statistics</string>
     <string name="active_duration">00:00:00</string>
+    <string name="distance_in_km">0.00 km</string>
+    <string name="active_speed">Speed: 0.0 km</string>
+    <string name="active_avg_pace">Avg Pace: 0\'00\"</string>
     <string name="active_elevation">Elevation: 0 m</string>
-    <string name="btn_stop">Stop</string>
-    <string name="btn_start">Start</string>
+    <string name="active_calories">0 kcal</string>
+    <string name="active_step_counter_default">0 steps</string>
+    <string name="active_step_counter">%d steps</string>
+
+    <!-- Titles & Defaults -->
     <string name="summary_title">Hike Summary</string>
     <string name="summary_duration">Duration: 00:00:00</string>
     <string name="summary_distance">Distance: 0.00 km</string>
+    <string name="summary_step_counter">Steps: 0</string>
     <string name="summary_calories">Calories: 0 kcal</string>
-    <string name="summary_speed_avg">Avg Speed: 0.0 km/h</string>
-    <string name="summary_speed_max">Max Speed: 0.0 km/h</string>
-    <string name="summary_pace_avg">Avg Pace: 0\'00\"</string>
-    <string name="summary_pace_max">Max Pace: 0\'00\"</string>
     <string name="summary_elevation">Elevation: Min 0m / Max 0m</string>
+
+    <!-- HIKE SUMMARY SCREEN -->
+    <string name="summary_speed_avg">%.1f km/h</string>
+    <string name="summary_speed_max">%.1f km/h</string>
+    <string name="summary_pace_avg">%s /km</string>
+    <string name="summary_pace_max">%s /km</string>
+
+    <!-- UI LABELS -->
+    <string name="avg_speed">AVG SPEED</string>
+    <string name="max_speed">MAX SPEED</string>
+    <string name="avg_pace">AVG PACE</string>
+    <string name="max_pace">MAX PACE</string>
+
+    <!-- BUTTONS -->
+    <string name="btn_start">Start</string>
+    <string name="btn_stop">Stop</string>
     <string name="btn_save">Save</string>
     <string name="btn_discard">Discard</string>
-    <string name="active_speed">Speed: 0.0 km</string>
-    <string name="active_step_counter">%d steps</string>
-    <string name="active_step_counter_default">0 steps</string>
-    <string name="summary_step_counter">Steps: 0</string>
+
 </resources>
