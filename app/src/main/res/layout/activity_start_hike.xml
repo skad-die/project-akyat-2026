@@ -48,6 +48,14 @@
             android:layout_marginTop="4dp"
             android:text="@string/active_step_counter_default"
             android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/tvCalories"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/active_calories"
+            android:textSize="24sp" />
     </LinearLayout>
 
     <LinearLayout

@@ -6,6 +6,8 @@
     <string name="duration_format">Duration: %1$s</string>
     <string name="avg_speed_format">%.1f km/h</string>
     <string name="pace_format">%s /km</string>
+    <string name="calorie_format">%d kcal</string>
+    <string name="elevation_format">↑ %.0fm  ↓ %.0fm</string>
 
     <string name="hike_statistics">Hike Statistics</string>
     <string name="active_duration">00:00:00</string>
@@ -15,6 +17,7 @@
     <string name="active_elevation">Elevation: 0 m</string>
     <string name="active_calories">0 kcal</string>
     <string name="active_step_counter_default">0 steps</string>
+    <string name="active_calorie_counter_default">0 calories</string>
     <string name="active_step_counter">%d steps</string>
 
     <!-- Titles & Defaults -->
