@@ -112,4 +112,10 @@
         android:layout_marginHorizontal="32dp"
         android:layout_marginBottom="8dp"
         android:text="@string/btn_start" />
+
+    <Button
+        android:id="@+id/btnPause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/pause" />
 </RelativeLayout>

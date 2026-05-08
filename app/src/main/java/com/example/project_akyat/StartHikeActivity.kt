@@ -12,6 +12,10 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -24,14 +28,16 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.gms.location.*
 import java.util.Locale
-import kotlin.math.abs
 
 class StartHikeActivity : AppCompatActivity() {
+
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var locationCallback: LocationCallback? = null
     private lateinit var sensorManager: SensorManager
     private var stepDetectorSensor: Sensor? = null
 
+    private lateinit var btnStartPause: Button
+    private lateinit var btnStop: Button
     private lateinit var tvDuration: TextView
     private lateinit var tvDistance: TextView
     private lateinit var tvSteps: TextView
@@ -45,7 +51,7 @@ class StartHikeActivity : AppCompatActivity() {
 
     private var activeTimeMillis = 0L
     private var lastTickTime = 0L
-    private var lastStepTimeMillis = 0L
+    private var lastActiveTimeMillis = 0L
 
     private var totalDistanceKm = 0.0
     private var maxSpeedKmh = 0.0
@@ -53,6 +59,8 @@ class StartHikeActivity : AppCompatActivity() {
     private var currentGpsSpeedKmh = 0.0
 
     private var isTracking = false
+    private var isPaused = false
+    private var isManualPause = false
     private var currentSteps = 0
     private var lastAltitude: Double? = null
     private var smoothedAltitude: Double? = null
@@ -62,17 +70,18 @@ class StartHikeActivity : AppCompatActivity() {
         override fun run() {
             if (!isTracking) return
 
-            val now = System.currentTimeMillis()
+            val now = SystemClock.elapsedRealtime()
             val delta = now - lastTickTime
             lastTickTime = now
 
-            val isStepping = (now - lastStepTimeMillis) < 4000
-            val isMovingGps = currentGpsSpeedKmh >= 0.2
-
-            if (isStepping || isMovingGps) {
+            if (!isPaused) {
                 activeTimeMillis += delta
-            } else {
-                currentGpsSpeedKmh = 0.0
+
+                // Auto-Pause check: 10 seconds of complete inactivity
+                val inactiveDuration = now - lastActiveTimeMillis
+                if (inactiveDuration > 10000) {
+                    pauseTracking(isAuto = true)
+                }
             }
 
             val seconds = (activeTimeMillis / 1000) % 60
@@ -88,7 +97,12 @@ class StartHikeActivity : AppCompatActivity() {
             val averagePace = if (totalDistanceKm > 0) (elapsedHours * 60) / totalDistanceKm else 0.0
 
             tvSpeedAvg.text = getString(R.string.avg_speed_format, averageSpeed)
-            tvPaceAvg.text = formatPace(averagePace)
+
+            if (isPaused) {
+                tvPaceAvg.text = getString(R.string.pause)
+            } else {
+                tvPaceAvg.text = formatPace(averagePace)
+            }
 
             handler.postDelayed(this, 1000)
         }
@@ -126,12 +140,22 @@ class StartHikeActivity : AppCompatActivity() {
     }
 
     private fun setupButtons() {
-        val btnStart = findViewById<Button>(R.id.btnStart)
-        val btnStop = findViewById<Button>(R.id.btnStop)
+        btnStartPause = findViewById(R.id.btnStart)
+        btnStop = findViewById(R.id.btnStop)
 
-        btnStart.setOnClickListener {
-            if (isTracking) return@setOnClickListener
-            checkAndRequestPermissions()
+        findViewById<Button>(R.id.btnPause)?.visibility = View.GONE
+        btnStop.visibility = View.GONE
+
+        btnStartPause.setOnClickListener {
+            if (!isTracking) {
+                checkAndRequestPermissions()
+            } else {
+                if (isPaused) {
+                    resumeTracking(isAuto = false)
+                } else {
+                    pauseTracking(isAuto = false)
+                }
+            }
         }
 
         btnStop.setOnClickListener {
@@ -155,18 +179,8 @@ class StartHikeActivity : AppCompatActivity() {
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             val fineLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
-            val activityGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                permissions[Manifest.permission.ACTIVITY_RECOGNITION] == true
-            } else {
-                true
-            }
-
             if (fineLocationGranted) {
-                Toast.makeText(this, "Hike started!", Toast.LENGTH_SHORT).show()
                 startTracking()
-                if (!activityGranted) {
-                    Toast.makeText(this, "Step tracking disabled", Toast.LENGTH_SHORT).show()
-                }
             } else {
                 Toast.makeText(this, "Location permission denied. Cannot track hike.", Toast.LENGTH_SHORT).show()
             }
@@ -174,13 +188,12 @@ class StartHikeActivity : AppCompatActivity() {
 
     private fun startTracking() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            Toast.makeText(this, "Permission not granted", Toast.LENGTH_SHORT).show()
-            return
-        }
+            != PackageManager.PERMISSION_GRANTED) return
 
         isTracking = true
+        isPaused = false
+        isManualPause = false
+
         lastLocation = null
         lastAltitude = null
         smoothedAltitude = null
@@ -192,27 +205,29 @@ class StartHikeActivity : AppCompatActivity() {
         elevationGain = 0.0
 
         activeTimeMillis = 0L
-        lastTickTime = System.currentTimeMillis()
-        lastStepTimeMillis = System.currentTimeMillis()
+        val now = SystemClock.elapsedRealtime()
+        lastTickTime = now
+        lastActiveTimeMillis = now
 
+        // UI Reset
         tvDistance.text = getString(R.string.distance_format, 0.0)
         tvSteps.text = getString(R.string.active_step_counter_default)
         tvCalories.text = getString(R.string.active_calorie_counter_default)
         tvSpeedAvg.text = getString(R.string.avg_speed_format, 0.0)
         tvPaceAvg.text = formatPace(0.0)
         tvElevation.text = getString(R.string.elevation_format, 0.0)
+
+        btnStartPause.text = getString(R.string.pause)
+        btnStop.visibility = View.VISIBLE
+
         handler.post(timerRunnable)
 
         stepDetectorSensor?.let {
             sensorManager.registerListener(stepListener, it, SensorManager.SENSOR_DELAY_FASTEST)
-        } ?: Toast.makeText(this, "Step counter not available on this device", Toast.LENGTH_SHORT).show()
+        } ?: Toast.makeText(this, "Step counter not available", Toast.LENGTH_SHORT).show()
 
-        val request = LocationRequest.Builder(
-            Priority.PRIORITY_HIGH_ACCURACY,
-            2000
-        )
+        val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000)
             .setMinUpdateIntervalMillis(1000)
-            .setWaitForAccurateLocation(true)
             .build()
 
         locationCallback = object : LocationCallback() {
@@ -222,10 +237,9 @@ class StartHikeActivity : AppCompatActivity() {
                 }
             }
         }
+        fusedLocationClient.requestLocationUpdates(request, locationCallback!!, Looper.getMainLooper())
+        Toast.makeText(this, "Hike started!", Toast.LENGTH_SHORT).show()
 
-        locationCallback?.let {
-            fusedLocationClient.requestLocationUpdates(request, it, Looper.getMainLooper())
-        }
     }
 
     private fun handleLocation(location: Location) {
@@ -241,29 +255,27 @@ class StartHikeActivity : AppCompatActivity() {
             if (location.hasVerticalAccuracy() && location.verticalAccuracyMeters > 15f) return
         }
 
-        val rawAltitude = location.altitude
+        val currentAltitude = location.altitude
 
-        smoothedAltitude = if (smoothedAltitude == null) {
-            rawAltitude
-        } else {
-            (smoothedAltitude!! * 0.8) + (rawAltitude * 0.2)
-        }
+        smoothedAltitude = smoothedAltitude?.let { (it * 0.8) + (currentAltitude * 0.2) } ?: currentAltitude
 
-        val currentAltitude = smoothedAltitude!!
-
-        if (lastAltitude == null) {
-            lastAltitude = currentAltitude
+        if (isPaused) {
+            lastAltitude = smoothedAltitude
             return
         }
 
-        val diff = currentAltitude - lastAltitude!!
-        if (abs(diff) > 1.0) {
-            if (diff > 0) {
-                elevationGain += diff
-                tvElevation.text = getString(R.string.elevation_format, elevationGain)
-            }
-            lastAltitude = currentAltitude
+        lastAltitude?.let { last ->
+            val diff = smoothedAltitude!! - last
 
+            if (diff > 1.0) {
+                elevationGain += diff
+                lastAltitude = smoothedAltitude
+                tvElevation.text = getString(R.string.elevation_format, elevationGain)
+            } else if (diff < -1.0) {
+                lastAltitude = smoothedAltitude
+            }
+        } ?: run {
+            lastAltitude = smoothedAltitude
         }
     }
 
@@ -279,63 +291,118 @@ class StartHikeActivity : AppCompatActivity() {
         if (timeSec <= 0.0) return
 
         val calculatedSpeedKmh = (distanceMeters / timeSec) * 3.6
-        val gpsSpeedKmh = if (location.hasSpeed()) {
-            location.speed * 3.6
-        } else {
-            calculatedSpeedKmh
+        val gpsSpeedKmh = if (location.hasSpeed()) location.speed * 3.6 else calculatedSpeedKmh
+
+        if (isPaused) {
+            if (isManualPause) {
+                lastLocation = location
+                return
+            } else {
+                if (distanceMeters > 3.0 || gpsSpeedKmh > 1.5) {
+                    resumeTracking(isAuto = true)
+                } else {
+                    return
+                }
+            }
         }
 
-        // Standing still / Jitter filter
         if (distanceMeters < 1.5 && calculatedSpeedKmh < 1.0) {
             currentGpsSpeedKmh = 0.0
             return
         }
 
-        if (calculatedSpeedKmh in 0.2..25.0) {
-            totalDistanceKm += (distanceMeters / 1000.0)
-            currentGpsSpeedKmh = gpsSpeedKmh
-
-            // Update Max Speed
-            if (gpsSpeedKmh > maxSpeedKmh && gpsSpeedKmh <= 35.0) {
-                maxSpeedKmh = gpsSpeedKmh
-            }
-
-            // Calculate current Pace to record Best Pace
-            val currentPace = if (calculatedSpeedKmh > 0.1) 60.0 / calculatedSpeedKmh else 0.0
-            if (currentPace > 0 && (bestPaceMinPerKm == 0.0 || currentPace < bestPaceMinPerKm)) {
-                bestPaceMinPerKm = currentPace
-            }
-
-            // Update Distance UI
-            tvDistance.text = getString(R.string.distance_format, totalDistanceKm)
-
+        if (calculatedSpeedKmh > 25.0) {
             lastLocation = location
+            return
+        }
+        lastActiveTimeMillis = SystemClock.elapsedRealtime()
+        currentGpsSpeedKmh = gpsSpeedKmh
+        totalDistanceKm += (distanceMeters / 1000.0)
 
-        } else if (calculatedSpeedKmh > 25.0) {
-            lastLocation = location
+        if (gpsSpeedKmh > maxSpeedKmh && gpsSpeedKmh <= 35.0) maxSpeedKmh = gpsSpeedKmh
+
+        val currentPace = if (calculatedSpeedKmh > 0.1) 60.0 / calculatedSpeedKmh else 0.0
+        if (currentPace > 0 && (bestPaceMinPerKm == 0.0 || currentPace < bestPaceMinPerKm)) {
+            bestPaceMinPerKm = currentPace
+        }
+
+        tvDistance.text = getString(R.string.distance_format, totalDistanceKm)
+        lastLocation = location
+    }
+
+    private val stepListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) {
+            if (event.sensor.type == Sensor.TYPE_STEP_DETECTOR) {
+                if (!isTracking) return
+
+                if (isPaused) {
+                    if (!isManualPause) {
+                        resumeTracking(isAuto = true)
+                    } else {
+                        return
+                    }
+                }
+
+                lastActiveTimeMillis = SystemClock.elapsedRealtime()
+                currentSteps++
+                tvSteps.text = getString(R.string.active_step_counter, currentSteps)
+            }
+        }
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+    }
+
+    private fun pauseTracking(isAuto: Boolean) {
+        if (isPaused) return
+
+        isPaused = true
+        isManualPause = !isAuto
+        currentGpsSpeedKmh = 0.0
+
+        btnStartPause.text = getString(R.string.resume)
+        vibratePhone()
+
+        if (!isAuto) {
+            Toast.makeText(this, getString(R.string.tracking_paused), Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun calculateCalories(): Int {
-        val averageWeightKg = 70.0
-        val averageHikingMET = 4.5
-        val activeHours = activeTimeMillis / 3600000.0
-        val caloriesBurned = averageHikingMET * averageWeightKg * activeHours
+    private fun resumeTracking(isAuto: Boolean) {
+        if (!isPaused) return
 
-        return caloriesBurned.toInt()
+        if (!isAuto && isManualPause) {
+            lastLocation = null
+            lastAltitude = null
+        }
+
+        isPaused = false
+        isManualPause = false
+        lastActiveTimeMillis = SystemClock.elapsedRealtime()
+
+        btnStartPause.text = getString(R.string.pause)
+
+        if (!isAuto) {
+            Toast.makeText(this, getString(R.string.tracking_resumed), Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun stopTracking() {
         if (!isTracking) return
         isTracking = false
 
-        locationCallback?.let { fusedLocationClient.removeLocationUpdates(it) }
+        locationCallback?.let {
+            fusedLocationClient.removeLocationUpdates(it)
+        }
         locationCallback = null
 
-        if (stepDetectorSensor != null) {
-            sensorManager.unregisterListener(stepListener)
-        }
+        stepDetectorSensor?.let { sensorManager.unregisterListener(stepListener) }
         handler.removeCallbacks(timerRunnable)
+    }
+
+    private fun calculateCalories(): Int {
+        val averageWeightKg = 70.0
+        val averageHikingMET = 4.5
+        val activeHours = activeTimeMillis / 3600000.0
+        return (averageHikingMET * averageWeightKg * activeHours).toInt()
     }
 
     private fun navigateToSummary() {
@@ -366,19 +433,31 @@ class StartHikeActivity : AppCompatActivity() {
         return String.format(Locale.getDefault(), "%d'%02d\"", minutes, seconds)
     }
 
+    private fun vibratePhone() {
+        try {
+            val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val vibratorManager = getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                vibratorManager.defaultVibrator
+            } else {
+                @Suppress("DEPRECATION")
+                getSystemService(VIBRATOR_SERVICE) as Vibrator
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(
+                    VibrationEffect.createOneShot(400, VibrationEffect.DEFAULT_AMPLITUDE)
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(400)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         stopTracking()
-    }
-
-    private val stepListener = object : SensorEventListener {
-        override fun onSensorChanged(event: SensorEvent) {
-            if (event.sensor.type == Sensor.TYPE_STEP_DETECTOR) {
-                currentSteps++
-                lastStepTimeMillis = System.currentTimeMillis()
-                tvSteps.text = getString(R.string.active_step_counter, currentSteps)
-            }
-        }
-        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
     }
 }

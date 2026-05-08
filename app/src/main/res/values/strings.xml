@@ -45,5 +45,9 @@
     <string name="btn_stop">Stop</string>
     <string name="btn_save">Save</string>
     <string name="btn_discard">Discard</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="tracking_paused">Tracking Paused</string>
+    <string name="tracking_resumed">Tracking Resumed</string>
 
 </resources>
