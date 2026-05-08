@@ -55,8 +55,8 @@ class StartHikeActivity : AppCompatActivity() {
     private var isTracking = false
     private var currentSteps = 0
     private var lastAltitude: Double? = null
+    private var smoothedAltitude: Double? = null
     private var elevationGain = 0.0
-    private var elevationLoss = 0.0
 
     private val timerRunnable = object : Runnable {
         override fun run() {
@@ -72,18 +72,23 @@ class StartHikeActivity : AppCompatActivity() {
             if (isStepping || isMovingGps) {
                 activeTimeMillis += delta
             } else {
-                tvSpeedAvg.text = getString(R.string.avg_speed_format, 0.0)
-                tvPaceAvg.text = formatPace(0.0)
+                currentGpsSpeedKmh = 0.0
             }
 
             val seconds = (activeTimeMillis / 1000) % 60
             val minutes = (activeTimeMillis / 60000) % 60
             val hours = activeTimeMillis / 3600000
-
             tvDuration.text = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
 
             val calories = calculateCalories()
             tvCalories.text = getString(R.string.calorie_format, calories)
+
+            val elapsedHours = activeTimeMillis / 3600000.0
+            val averageSpeed = if (elapsedHours > 0) totalDistanceKm / elapsedHours else 0.0
+            val averagePace = if (totalDistanceKm > 0) (elapsedHours * 60) / totalDistanceKm else 0.0
+
+            tvSpeedAvg.text = getString(R.string.avg_speed_format, averageSpeed)
+            tvPaceAvg.text = formatPace(averagePace)
 
             handler.postDelayed(this, 1000)
         }
@@ -178,13 +183,13 @@ class StartHikeActivity : AppCompatActivity() {
         isTracking = true
         lastLocation = null
         lastAltitude = null
+        smoothedAltitude = null
         totalDistanceKm = 0.0
         maxSpeedKmh = 0.0
         bestPaceMinPerKm = 0.0
         currentSteps = 0
         currentGpsSpeedKmh = 0.0
         elevationGain = 0.0
-        elevationLoss = 0.0
 
         activeTimeMillis = 0L
         lastTickTime = System.currentTimeMillis()
@@ -195,14 +200,20 @@ class StartHikeActivity : AppCompatActivity() {
         tvCalories.text = getString(R.string.active_calorie_counter_default)
         tvSpeedAvg.text = getString(R.string.avg_speed_format, 0.0)
         tvPaceAvg.text = formatPace(0.0)
-        tvElevation.text = getString(R.string.elevation_format, 0.0, 0.0)
+        tvElevation.text = getString(R.string.elevation_format, 0.0)
         handler.post(timerRunnable)
 
         stepDetectorSensor?.let {
             sensorManager.registerListener(stepListener, it, SensorManager.SENSOR_DELAY_FASTEST)
         } ?: Toast.makeText(this, "Step counter not available on this device", Toast.LENGTH_SHORT).show()
 
-        val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000).build()
+        val request = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            2000
+        )
+            .setMinUpdateIntervalMillis(1000)
+            .setWaitForAccurateLocation(true)
+            .build()
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
@@ -212,57 +223,71 @@ class StartHikeActivity : AppCompatActivity() {
             }
         }
 
-        locationCallback?.let { fusedLocationClient.requestLocationUpdates(request, it, Looper.getMainLooper()) }
+        locationCallback?.let {
+            fusedLocationClient.requestLocationUpdates(request, it, Looper.getMainLooper())
+        }
     }
 
     private fun handleLocation(location: Location) {
+        if (location.accuracy > 50f) return
 
-        if (location.accuracy > 35f) return
+        handleElevation(location)
+        handleDistanceAndSpeed(location)
+    }
 
+    private fun handleElevation(location: Location) {
+        if (!location.hasAltitude()) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (location.hasVerticalAccuracy() && location.verticalAccuracyMeters > 15f) return
+        }
+
+        val rawAltitude = location.altitude
+
+        smoothedAltitude = if (smoothedAltitude == null) {
+            rawAltitude
+        } else {
+            (smoothedAltitude!! * 0.8) + (rawAltitude * 0.2)
+        }
+
+        val currentAltitude = smoothedAltitude!!
+
+        if (lastAltitude == null) {
+            lastAltitude = currentAltitude
+            return
+        }
+
+        val diff = currentAltitude - lastAltitude!!
+        if (abs(diff) > 1.0) {
+            if (diff > 0) {
+                elevationGain += diff
+                tvElevation.text = getString(R.string.elevation_format, elevationGain)
+            }
+            lastAltitude = currentAltitude
+
+        }
+    }
+
+    private fun handleDistanceAndSpeed(location: Location) {
         val last = lastLocation ?: run {
             lastLocation = location
             return
         }
 
-        if (location.hasAltitude()) {
-            val currentAltitude = location.altitude
-
-            lastAltitude?.let { previousAltitude ->
-                val diff = currentAltitude - previousAltitude
-
-                if (abs(diff) > 3.0) {
-                    if (diff > 0) {
-                        elevationGain += diff
-                    } else {
-                        elevationLoss += abs(diff)
-                    }
-
-                    tvElevation.text = getString(R.string.elevation_format, elevationGain, elevationLoss)
-                }
-            }
-
-            lastAltitude = currentAltitude
-        }
-
         val distanceMeters = last.distanceTo(location)
         val timeSec = (location.time - last.time) / 1000.0
 
-        if (timeSec < 1.0) {
-            lastLocation = location
-            return
-        }
+        if (timeSec <= 0.0) return
 
         val calculatedSpeedKmh = (distanceMeters / timeSec) * 3.6
-
         val gpsSpeedKmh = if (location.hasSpeed()) {
             location.speed * 3.6
         } else {
             calculatedSpeedKmh
         }
 
+        // Standing still / Jitter filter
         if (distanceMeters < 1.5 && calculatedSpeedKmh < 1.0) {
             currentGpsSpeedKmh = 0.0
-            lastLocation = location
             return
         }
 
@@ -270,28 +295,19 @@ class StartHikeActivity : AppCompatActivity() {
             totalDistanceKm += (distanceMeters / 1000.0)
             currentGpsSpeedKmh = gpsSpeedKmh
 
+            // Update Max Speed
             if (gpsSpeedKmh > maxSpeedKmh && gpsSpeedKmh <= 35.0) {
                 maxSpeedKmh = gpsSpeedKmh
             }
 
+            // Calculate current Pace to record Best Pace
             val currentPace = if (calculatedSpeedKmh > 0.1) 60.0 / calculatedSpeedKmh else 0.0
-
             if (currentPace > 0 && (bestPaceMinPerKm == 0.0 || currentPace < bestPaceMinPerKm)) {
                 bestPaceMinPerKm = currentPace
             }
 
+            // Update Distance UI
             tvDistance.text = getString(R.string.distance_format, totalDistanceKm)
-
-            val elapsedHours = activeTimeMillis / 3600000.0
-
-            val averageSpeed = if (elapsedHours > 0) {
-                totalDistanceKm / elapsedHours
-            } else {
-                0.0
-            }
-
-            tvSpeedAvg.text = getString(R.string.avg_speed_format, averageSpeed)
-            tvPaceAvg.text = formatPace(currentPace)
 
             lastLocation = location
 
@@ -337,7 +353,6 @@ class StartHikeActivity : AppCompatActivity() {
             putExtra("avgPace", formatPace(overallAvgPaceMinPerKm))
             putExtra("bestPace", formatPace(bestPaceMinPerKm))
             putExtra("elevationGain", elevationGain)
-            putExtra("elevationLoss", elevationLoss)
         }
 
         startActivity(intent)

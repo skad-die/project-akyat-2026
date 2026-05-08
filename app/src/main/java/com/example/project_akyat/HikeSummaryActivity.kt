@@ -62,7 +62,6 @@ class HikeSummaryActivity : AppCompatActivity() {
         val avgPace = intent.getStringExtra("avgPace") ?: "0'00\""
         val bestPace = intent.getStringExtra("bestPace") ?: "0'00\""
         val elevationGain = intent.getDoubleExtra("elevationGain", 0.0)
-        val elevationLoss = intent.getDoubleExtra("elevationLoss", 0.0)
 
         tvDuration.text = getString(R.string.duration_format, duration)
         tvDistance.text = getString(R.string.distance_format, distance)
@@ -72,7 +71,7 @@ class HikeSummaryActivity : AppCompatActivity() {
         tvSpeedMax.text = getString(R.string.summary_speed_max, maxSpeed)
         tvPaceAvg.text = getString(R.string.summary_pace_avg, avgPace)
         tvPaceMax.text = getString(R.string.summary_pace_max, bestPace)
-        tvElevation.text = getString(R.string.elevation_format, elevationGain, elevationLoss)
+        tvElevation.text = getString(R.string.elevation_format, elevationGain)
     }
 
     private fun setupButtons() {
