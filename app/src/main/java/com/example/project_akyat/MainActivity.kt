@@ -1,9 +1,11 @@
 package com.example.project_akyat
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
@@ -29,19 +31,7 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { view, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-
-            view.setPadding(
-                systemBars.left,
-                systemBars.top,
-                systemBars.right,
-                systemBars.bottom
-            )
-
-            insets
-        }
-
+        setupInsets()
         initViews()
         setupToolbar()
         setupDrawer()
@@ -50,6 +40,20 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             replaceFragment(DashboardFragment(), "Dashboard")
+        }
+    }
+
+    private fun setupInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(
+                systemBars.left,
+                systemBars.top,
+                systemBars.right,
+                systemBars.bottom
+            )
+            insets
+
         }
     }
 
@@ -62,16 +66,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupToolbar() {
         setSupportActionBar(toolbar)
-
-        toolbar.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.action_menu -> {
-                    drawerLayout.openDrawer(GravityCompat.END)
-                    true
-                }
-                else -> false
-            }
-        }
     }
 
     private fun setupDrawer() {
@@ -89,9 +83,9 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "Logout", Toast.LENGTH_SHORT).show()
                 }
             }
-
             drawerLayout.closeDrawer(GravityCompat.END)
             true
+
         }
     }
 
@@ -112,8 +106,8 @@ class MainActivity : AppCompatActivity() {
                     replaceFragment(ProgressFragment(), "Progress")
                     true
                 }
-
                 else -> false
+
             }
         }
     }
@@ -123,7 +117,6 @@ class MainActivity : AppCompatActivity() {
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-
                     if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
                         drawerLayout.closeDrawer(GravityCompat.END)
                     } else {
@@ -134,10 +127,27 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.toolbar_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_menu -> {
+                drawerLayout.openDrawer(GravityCompat.END)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+
+        }
+    }
+
     private fun replaceFragment(fragment: Fragment, title: String) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .commit()
+
         supportActionBar?.title = title
     }
 }
