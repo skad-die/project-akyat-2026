@@ -4,7 +4,7 @@
 
     <string name="distance_format">%.1f km</string>
     <string name="duration_format">Duration: %1$s</string>
-    <string name="avg_speed_format">Speed: %.1f km/h</string>
+    <string name="avg_speed_format">%.1f km/hr</string>
     <string name="pace_format">%s /km</string>
     <string name="calorie_format">%d kcal</string>
     <string name="elevation_format">Elevation: ↑ %.0fm</string>
@@ -12,8 +12,9 @@
     <string name="hike_statistics">Hike Statistics</string>
     <string name="active_duration">00:00:00</string>
     <string name="distance_in_km">0.00 km</string>
-    <string name="active_speed">Speed: 0.0 km</string>
-    <string name="active_avg_pace">Avg Pace: 0\'00\"</string>
+    <string name="speed_label">Speed:</string>
+    <string name="active_speed">0.0 km/hr</string>
+    <string name="active_avg_pace">Avg Pace:</string>
     <string name="active_elevation">Elevation: ↑ 0m</string>
     <string name="active_calories">0 kcal</string>
     <string name="active_step_counter_default">0 steps</string>
