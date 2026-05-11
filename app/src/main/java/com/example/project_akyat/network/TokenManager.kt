@@ -2,18 +2,19 @@ package com.example.project_akyat.network
 
 import android.content.Context
 
-object TokenManager {
+class TokenManager(context: Context) {
+    private val prefs =
+        context.getSharedPreferences("auth", Context.MODE_PRIVATE)
 
-    private const val PREF_NAME = "app"
-    private const val KEY_TOKEN = "token"
-
-    fun saveToken(context: Context, token: String) {
-        val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putString(KEY_TOKEN, token).apply()
+    fun saveToken(token: String) {
+        prefs.edit().putString("jwt_token", token).apply()
     }
 
-    fun getToken(context: Context): String? {
-        val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        return prefs.getString(KEY_TOKEN, null)
+    fun getToken(): String? {
+        return prefs.getString("jwt_token", null)
+    }
+
+    fun clearToken() {
+        prefs.edit().clear().apply()
     }
 }

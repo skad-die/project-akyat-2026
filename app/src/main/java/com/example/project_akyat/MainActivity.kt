@@ -1,5 +1,6 @@
 package com.example.project_akyat
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -15,6 +16,7 @@ import androidx.fragment.app.Fragment
 import com.example.project_akyat.fragments.DashboardFragment
 import com.example.project_akyat.fragments.HistoryFragment
 import com.example.project_akyat.fragments.ProgressFragment
+import com.example.project_akyat.network.TokenManager
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
@@ -80,7 +82,15 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.nav_logout -> {
-                    Toast.makeText(this, "Logout", Toast.LENGTH_SHORT).show()
+                    TokenManager(this).clearToken()
+                    Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this, LoginActivity::class.java)
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NEW_TASK or
+                                Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+                    startActivity(intent)
+                    finish()
                 }
             }
             drawerLayout.closeDrawer(GravityCompat.END)

@@ -53,28 +53,35 @@ class LoginActivity : AppCompatActivity() {
     private fun loginUser(email: String, password: String) {
         val request = LoginRequest(email, password)
         val api = RetrofitClient.create(this)
+        val tokenManager = TokenManager(this)
 
         api.login(request).enqueue(object : retrofit2.Callback<LoginResponse> {
-            override fun onResponse(call: retrofit2.Call<LoginResponse>, response: retrofit2.Response<LoginResponse>) {
+            override fun onResponse(
+                call: retrofit2.Call<LoginResponse>,
+                response: retrofit2.Response<LoginResponse>
+            ) {
                 if (response.isSuccessful) {
                     val token = response.body()?.token
+
                     if (token != null) {
-                        TokenManager.saveToken(this@LoginActivity, token)
-                        startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                        tokenManager.saveToken(token)
+                        val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+                        startActivity(intent)
                         finish()
                     } else {
                         Toast.makeText(this@LoginActivity, "Invalid response", Toast.LENGTH_SHORT).show()
                     }
-
                 } else {
                     Toast.makeText(this@LoginActivity, "Login failed", Toast.LENGTH_SHORT).show()
                 }
             }
 
-            // TODO: Will change to a friendly generic message instead of error code later on
             override fun onFailure(call: retrofit2.Call<LoginResponse>, t: Throwable) {
-                    Toast.makeText(this@LoginActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-                }
-            })
+                Toast.makeText(this@LoginActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }

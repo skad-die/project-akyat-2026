@@ -3,16 +3,15 @@ package com.example.project_akyat.network
 import okhttp3.Interceptor
 import okhttp3.Response
 
-class AuthInterceptor(private val context: android.content.Context) : Interceptor {
-
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val requestBuilder = chain.request().newBuilder()
-        val token = TokenManager.getToken(context)
+class AuthInterceptor(private val tokenManager: TokenManager) : okhttp3.Interceptor {
+    override fun intercept(chain: okhttp3.Interceptor.Chain): okhttp3.Response {
+        val token = tokenManager.getToken()
+        val request = chain.request().newBuilder()
 
         if (token != null) {
-            requestBuilder.addHeader("Authorization", "Bearer $token")
+            request.addHeader("Authorization", "Bearer $token")
         }
 
-        return chain.proceed(requestBuilder.build())
+        return chain.proceed(request.build())
     }
 }
