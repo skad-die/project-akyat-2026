@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
 
 const HikeSchema = new mongoose.Schema({
-    duration: {
-        type: String, // "hh:mm:ss" TODO change to proper datatype
-        required: true
+    durationSeconds: {
+        type: Number,
+        required: true,
+        min: 0
     },
 
     distanceKm: {
@@ -12,37 +13,96 @@ const HikeSchema = new mongoose.Schema({
         min: 0
     },
 
+    steps: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+
     calories: {
         type: Number,
-        min: 0,
-        default: 0
+        default: 0,
+        min: 0
     },
 
-    // km/h
     speed: {
-    avg: { type: Number, min: 0 },
-    max: { type: Number, min: 0 }
+        avgKmh: {
+            type: Number,
+            default: 0,
+            min: 0
+        },
+
+        maxKmh: {
+            type: Number,
+            default: 0,
+            min: 0
+        }
     },
 
-    // min/km
     pace: {
-        avg: { type: Number, min: 0 },
-        max: { type: Number, min: 0 }
+        avgMinPerKm: {
+            type: Number,
+            default: 0,
+            min: 0
+        },
+
+        bestMinPerKm: {
+            type: Number,
+            default: 0,
+            min: 0
+        }
     },
 
     elevation: {
-        min: Number,
-        max: Number
+        gainMeters: {
+            type: Number,
+            default: 0
+        },
+
+        minMeters: {
+            type: Number,
+            default: 0
+        },
+
+        maxMeters: {
+            type: Number,
+            default: 0
+        }
+    },
+
+    route: [
+        {
+            latitude: Number,
+            longitude: Number,
+            timestamp: Date
+        }
+    ],
+
+    startedAt: {
+        type: Date,
+        required: true
+    },
+
+    endedAt: {
+        type: Date,
+        required: true
+    },
+
+    syncStatus: {
+        type: String,
+        enum: ["pending", "synced", "failed"],
+        default: "pending"
     },
 
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true
+        required: true,
+        index: true
     }
 
 }, {
-  timestamps: true
+    timestamps: true
 });
 
 module.exports = mongoose.model("Hike", HikeSchema);

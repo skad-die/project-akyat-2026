@@ -97,7 +97,11 @@ app.post("/hikes", auth, async (req, res) => {
     const hike = await Hike.create({ ...req.body, userId: req.user.id });
     res.status(201).json(hike);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    if (err.name === "ValidationError") {
+      const messages = Object.values(err.errors).map(e => e.message);
+      return res.status(400).json({ error: "Validation failed", details: messages });
+    }
+    res.status(500).json({ error: "Server error" });
   }
 });
 
@@ -107,7 +111,7 @@ app.get("/hikes", auth, async (req, res) => {
     const hikes = await Hike.find({ userId: req.user.id });
     res.json(hikes);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Server error" });
   }
 });
 
@@ -122,7 +126,14 @@ app.put("/hikes/:id", auth, async (req, res) => {
     if (!hike) return res.status(404).json({ message: "Hike not found" });
     res.json(hike);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    if (err.name === "ValidationError") {
+      const messages = Object.values(err.errors).map(e => e.message);
+      return res.status(400).json({ error: "Validation failed", details: messages });
+    }
+    if (err.name === "CastError") {
+      return res.status(400).json({ message: "Invalid hike ID" });
+    }
+    res.status(500).json({ error: "Server error" });
   }
 });
 
@@ -133,7 +144,10 @@ app.delete("/hikes/:id", auth, async (req, res) => {
     if (!hike) return res.status(404).json({ message: "Hike not found" });
     res.json({ message: "Deleted successfully" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    if (err.name === "CastError") {
+      return res.status(400).json({ message: "Invalid hike ID" });
+    }
+    res.status(500).json({ error: "Server error" });
   }
 });
 

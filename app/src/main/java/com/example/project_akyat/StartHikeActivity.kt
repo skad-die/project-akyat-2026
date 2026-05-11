@@ -410,16 +410,24 @@ class StartHikeActivity : AppCompatActivity() {
         val overallAvgSpeedKmh = if (elapsedHours > 0) totalDistanceKm / elapsedHours else 0.0
         val overallAvgPaceMinPerKm = if (totalDistanceKm > 0) (elapsedHours * 60) / totalDistanceKm else 0.0
 
+        val endTime = System.currentTimeMillis()
+        val startTime = endTime - activeTimeMillis
+        val isoFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault())
+        isoFormat.timeZone = java.util.TimeZone.getTimeZone("UTC")
+
         val intent = Intent(this, HikeSummaryActivity::class.java).apply {
             putExtra("duration", tvDuration.text.toString())
+            putExtra("durationSeconds", (activeTimeMillis / 1000).toInt())
             putExtra("distance", totalDistanceKm)
             putExtra("steps", currentSteps)
             putExtra("calories", calculateCalories())
             putExtra("avgSpeed", overallAvgSpeedKmh)
             putExtra("maxSpeed", maxSpeedKmh)
-            putExtra("avgPace", formatPace(overallAvgPaceMinPerKm))
-            putExtra("bestPace", formatPace(bestPaceMinPerKm))
+            putExtra("avgPace", overallAvgPaceMinPerKm)
+            putExtra("bestPace", bestPaceMinPerKm)
             putExtra("elevationGain", elevationGain)
+            putExtra("startedAt", isoFormat.format(java.util.Date(startTime)))
+            putExtra("endedAt", isoFormat.format(java.util.Date(endTime)))
         }
 
         startActivity(intent)
