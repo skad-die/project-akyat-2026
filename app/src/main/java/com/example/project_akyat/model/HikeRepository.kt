@@ -1,5 +1,7 @@
 package com.example.project_akyat.model
 
+import com.example.project_akyat.model.local.HikeEntity
+import com.example.project_akyat.model.local.dao.HikeDao
 import kotlinx.coroutines.flow.Flow
 
 class HikeRepository(private val dao: HikeDao) {

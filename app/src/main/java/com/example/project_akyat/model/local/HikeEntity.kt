@@ -1,4 +1,4 @@
-package com.example.project_akyat.model
+package com.example.project_akyat.model.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

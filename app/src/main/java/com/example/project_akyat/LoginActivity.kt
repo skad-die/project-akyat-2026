@@ -7,8 +7,8 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import com.example.project_akyat.model.LoginRequest
-import com.example.project_akyat.model.LoginResponse
+import com.example.project_akyat.model.remote.LoginRequest
+import com.example.project_akyat.model.remote.LoginResponse
 import com.example.project_akyat.network.RetrofitClient
 import com.example.project_akyat.network.TokenManager
 

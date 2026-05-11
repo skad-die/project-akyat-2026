@@ -8,10 +8,10 @@ import android.net.NetworkCapabilities
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.project_akyat.model.AppDatabase
-import com.example.project_akyat.model.HikeEntity
+import com.example.project_akyat.model.local.db.AppDatabase
+import com.example.project_akyat.model.local.HikeEntity
 import com.example.project_akyat.model.HikeRepository
-import com.example.project_akyat.model.toRequest
+import com.example.project_akyat.model.remote.toRequest
 import com.example.project_akyat.network.RetrofitClient
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first

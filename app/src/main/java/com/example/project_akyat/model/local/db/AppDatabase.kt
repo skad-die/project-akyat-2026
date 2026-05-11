@@ -1,9 +1,11 @@
-package com.example.project_akyat.model
+package com.example.project_akyat.model.local.db
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.project_akyat.model.local.HikeEntity
+import com.example.project_akyat.model.local.dao.HikeDao
 
 @Database(
     entities = [HikeEntity::class],

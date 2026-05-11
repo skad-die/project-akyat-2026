@@ -1,11 +1,17 @@
-package com.example.project_akyat.model
+package com.example.project_akyat.model.local.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
+import com.example.project_akyat.model.local.HikeEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface HikeDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insert(hike: HikeEntity)
 
     @Update

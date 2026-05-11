@@ -1,4 +1,6 @@
-package com.example.project_akyat.model
+package com.example.project_akyat.model.remote
+
+import com.example.project_akyat.model.local.HikeEntity
 
 data class HikeRequest(
     val durationSeconds: Int,

@@ -6,7 +6,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.project_akyat.model.RegisterRequest
+import com.example.project_akyat.model.remote.RegisterRequest
 import com.example.project_akyat.network.RetrofitClient
 
 class RegisterActivity : AppCompatActivity() {

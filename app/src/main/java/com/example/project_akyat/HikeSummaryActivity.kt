@@ -11,7 +11,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.project_akyat.model.HikeEntity
+import com.example.project_akyat.model.local.HikeEntity
 import com.example.project_akyat.viewmodel.HikeSummaryViewModel
 
 class HikeSummaryActivity : AppCompatActivity() {

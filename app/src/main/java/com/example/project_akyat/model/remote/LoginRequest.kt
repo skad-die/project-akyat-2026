@@ -1,4 +1,4 @@
-package com.example.project_akyat.model
+package com.example.project_akyat.model.remote
 
 data class LoginRequest(
     val email: String,
