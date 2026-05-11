@@ -56,5 +56,9 @@
     <string name="progress">Progress</string>
     <string name="history">History</string>
     <string name="dashboard">Dashboard</string>
+    <string name="no_hikes_yet">No hikes yet</string>
+    <string name="untitled_hike">Untitled Hike</string>
+    <string name="_0_hikes">0 hikes</string>
+    <string name="hike_history">Hike History</string>
 
 </resources>

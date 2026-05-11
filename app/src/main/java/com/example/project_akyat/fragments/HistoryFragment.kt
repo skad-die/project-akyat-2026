@@ -7,16 +7,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.project_akyat.R
-import com.example.project_akyat.model.local.db.AppDatabase
-import com.example.project_akyat.model.local.HikeEntity
+import com.example.project_akyat.adapters.HikeAdapter
 import com.example.project_akyat.model.HikeRepository
+import com.example.project_akyat.model.local.HikeEntity
+import com.example.project_akyat.model.local.db.AppDatabase
 import com.example.project_akyat.model.remote.toRequest
 import com.example.project_akyat.network.RetrofitClient
 import kotlinx.coroutines.flow.collectLatest
@@ -24,9 +25,11 @@ import kotlinx.coroutines.launch
 
 class HistoryFragment : Fragment() {
 
-    private lateinit var hikeListContainer: LinearLayout
+    private lateinit var rvHikeHistory: RecyclerView
     private lateinit var tvEmptyState: TextView
     private lateinit var repo: HikeRepository
+    private lateinit var hikeAdapter: HikeAdapter
+    private lateinit var tvHikeCount: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,57 +41,54 @@ class HistoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        hikeListContainer = view.findViewById(R.id.hikeListContainer)
+        rvHikeHistory = view.findViewById(R.id.rvHikeHistory)
         tvEmptyState = view.findViewById(R.id.tvEmptyState)
+        tvHikeCount = view.findViewById(R.id.tvHikeCount)
 
         val dao = AppDatabase.getInstance(requireContext()).hikeDao()
         repo = HikeRepository(dao)
 
+        setupRecyclerView()
+
         observeHikes()
+    }
+
+    private fun setupRecyclerView() {
+        hikeAdapter = HikeAdapter(
+            onUploadClick = { hike ->
+                if (isOnline()) {
+                    uploadHike(hike)
+                } else {
+                    Toast.makeText(requireContext(), "No internet connection", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+
+        rvHikeHistory.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = hikeAdapter
+        }
     }
 
     private fun observeHikes() {
         viewLifecycleOwner.lifecycleScope.launch {
             repo.allHikes.collectLatest { hikes ->
-                hikeListContainer.removeAllViews()
+                tvHikeCount.text = "${hikes.size} hikes"
 
                 if (hikes.isEmpty()) {
                     tvEmptyState.visibility = View.VISIBLE
-                    return@collectLatest
-                }
-
-                tvEmptyState.visibility = View.GONE
-                hikes.forEach { hike -> addHikeItem(hike) }
-            }
-        }
-    }
-
-    private fun addHikeItem(hike: HikeEntity) {
-        val itemView = LayoutInflater.from(requireContext())
-            .inflate(R.layout.item_hike, hikeListContainer, false)
-
-        itemView.findViewById<TextView>(R.id.tvHikeDate).text = hike.startedAt
-        itemView.findViewById<TextView>(R.id.tvHikeDistance).text =
-            getString(R.string.distance_format, hike.distanceKm)
-        itemView.findViewById<TextView>(R.id.tvHikeDuration).text =
-            "Duration: ${hike.durationSeconds}s"
-
-        val btnUpload = itemView.findViewById<Button>(R.id.btnUpload)
-        if (!hike.synced) {
-            btnUpload.visibility = View.VISIBLE
-            btnUpload.setOnClickListener {
-                if (isOnline()) {
-                    uploadHike(hike, btnUpload)
+                    rvHikeHistory.visibility = View.GONE
                 } else {
-                    Toast.makeText(requireContext(), "No internet connection", Toast.LENGTH_SHORT).show()
+                    tvEmptyState.visibility = View.GONE
+                    rvHikeHistory.visibility = View.VISIBLE
+
+                    hikeAdapter.submitList(hikes)
                 }
             }
         }
-
-        hikeListContainer.addView(itemView)
     }
 
-    private fun uploadHike(hike: HikeEntity, btn: Button) {
+    private fun uploadHike(hike: HikeEntity) {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val api = RetrofitClient.create(requireContext())
