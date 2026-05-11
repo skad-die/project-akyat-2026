@@ -49,5 +49,12 @@
     <string name="resume">Resume</string>
     <string name="tracking_paused">Tracking Paused</string>
     <string name="tracking_resumed">Tracking Resumed</string>
+    <string name="menu">Menu</string>
+    <string name="logout">Logout</string>
+    <string name="settings">Settings</string>
+    <string name="profile">Profile</string>
+    <string name="progress">Progress</string>
+    <string name="history">History</string>
+    <string name="dashboard">Dashboard</string>
 
 </resources>

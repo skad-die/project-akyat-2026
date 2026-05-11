@@ -1,44 +1,72 @@
 package com.example.project_akyat
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.example.project_akyat.fragments.DashboardFragment
 import com.example.project_akyat.fragments.HistoryFragment
 import com.example.project_akyat.fragments.ProgressFragment
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var toolbar: MaterialToolbar
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navView: NavigationView
+    private lateinit var bottomNav: BottomNavigationView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+
+            view.setPadding(
+                systemBars.left,
+                systemBars.top,
+                systemBars.right,
+                systemBars.bottom
+            )
+
             insets
         }
 
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        initViews()
+        setupToolbar()
+        setupDrawer()
+        setupBottomNavigation()
+        setupBackPressed()
 
         if (savedInstanceState == null) {
-            replaceFragment(DashboardFragment())
+            replaceFragment(DashboardFragment(), "Dashboard")
         }
+    }
 
-        bottomNav.setOnItemSelectedListener { item ->
+    private fun initViews() {
+        toolbar = findViewById(R.id.toolbar)
+        drawerLayout = findViewById(R.id.drawerLayout)
+        navView = findViewById(R.id.navView)
+        bottomNav = findViewById(R.id.bottom_navigation)
+    }
+
+    private fun setupToolbar() {
+        setSupportActionBar(toolbar)
+
+        toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                R.id.nav_dashboard -> {
-                    replaceFragment(DashboardFragment())
-                    true
-                }
-                R.id.nav_history -> { replaceFragment(HistoryFragment())
-                    true
-                }
-                R.id.nav_progress -> {
-                    replaceFragment(ProgressFragment())
+                R.id.action_menu -> {
+                    drawerLayout.openDrawer(GravityCompat.END)
                     true
                 }
                 else -> false
@@ -46,10 +74,70 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupDrawer() {
+        navView.setNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_profile -> {
+                    Toast.makeText(this, "Profile", Toast.LENGTH_SHORT).show()
+                }
 
-    private fun replaceFragment(fragment: Fragment) {
+                R.id.nav_settings -> {
+                    Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show()
+                }
+
+                R.id.nav_logout -> {
+                    Toast.makeText(this, "Logout", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            drawerLayout.closeDrawer(GravityCompat.END)
+            true
+        }
+    }
+
+    private fun setupBottomNavigation() {
+        bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_dashboard -> {
+                    replaceFragment(DashboardFragment(), "Dashboard")
+                    true
+                }
+
+                R.id.nav_history -> {
+                    replaceFragment(HistoryFragment(), "History")
+                    true
+                }
+
+                R.id.nav_progress -> {
+                    replaceFragment(ProgressFragment(), "Progress")
+                    true
+                }
+
+                else -> false
+            }
+        }
+    }
+
+    private fun setupBackPressed() {
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+
+                    if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
+                        drawerLayout.closeDrawer(GravityCompat.END)
+                    } else {
+                        finish()
+                    }
+                }
+            }
+        )
+    }
+
+    private fun replaceFragment(fragment: Fragment, title: String) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .commit()
+        supportActionBar?.title = title
     }
 }
