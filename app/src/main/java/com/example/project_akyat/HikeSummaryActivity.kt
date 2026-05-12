@@ -64,8 +64,8 @@ class HikeSummaryActivity : AppCompatActivity() {
         val calories = intent.getIntExtra("calories", 0)
         val avgSpeed = intent.getDoubleExtra("avgSpeed", 0.0)
         val maxSpeed = intent.getDoubleExtra("maxSpeed", 0.0)
-        val avgPace = intent.getStringExtra("avgPace") ?: "0'00\""
-        val bestPace = intent.getStringExtra("bestPace") ?: "0'00\""
+        val avgPace = intent.getDoubleExtra("avgPace", 0.0)
+        val bestPace = intent.getDoubleExtra("bestPace", 0.0)
         val elevationGain = intent.getDoubleExtra("elevationGain", 0.0)
 
         tvDuration.text = getString(R.string.duration_format, duration)
@@ -74,9 +74,16 @@ class HikeSummaryActivity : AppCompatActivity() {
         tvCalories.text = getString(R.string.calorie_format, calories)
         tvSpeedAvg.text = getString(R.string.summary_speed_avg, avgSpeed)
         tvSpeedMax.text = getString(R.string.summary_speed_max, maxSpeed)
-        tvPaceAvg.text = getString(R.string.summary_pace_avg, avgPace)
-        tvPaceMax.text = getString(R.string.summary_pace_max, bestPace)
+        tvPaceAvg.text = formatPace(avgPace)
+        tvPaceMax.text = formatPace(bestPace)
         tvElevation.text = getString(R.string.elevation_format, elevationGain)
+    }
+
+    private fun formatPace(pace: Double): String {
+        if (pace <= 0.0 || pace.isInfinite() || pace.isNaN()) return "0'00\""
+        val minutes = pace.toInt()
+        val seconds = ((pace - minutes) * 60).toInt()
+        return String.format(java.util.Locale.getDefault(), "%d'%02d\"", minutes, seconds)
     }
 
     private fun setupButtons() {
