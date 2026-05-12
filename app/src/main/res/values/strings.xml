@@ -61,6 +61,6 @@
     <string name="untitled_hike">Untitled Hike</string>
     <string name="_0_hikes">0 hikes</string>
     <string name="hike_history">Hike History</string>
-    <string name="active_pace">0:00 /km</string>
+    <string name="active_pace">0\'00\"</string>
 
 </resources>
