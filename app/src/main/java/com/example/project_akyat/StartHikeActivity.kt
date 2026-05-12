@@ -53,10 +53,18 @@ class StartHikeActivity : AppCompatActivity() {
     private var lastTickTime = 0L
     private var lastActiveTimeMillis = 0L
 
+    private var startWallTime = 0L
+
     private var totalDistanceKm = 0.0
     private var maxSpeedKmh = 0.0
     private var bestPaceMinPerKm = 0.0
     private var currentGpsSpeedKmh = 0.0
+
+    private val maxValidSeedKMH = 25.0
+
+    private val userWeightKg: Double
+        get() = getSharedPreferences("user_prefs", MODE_PRIVATE)
+            .getFloat("weight_kg", 70f).toDouble()
 
     private var isTracking = false
     private var isPaused = false
@@ -77,7 +85,6 @@ class StartHikeActivity : AppCompatActivity() {
             if (!isPaused) {
                 activeTimeMillis += delta
 
-                // Auto-Pause check: 10 seconds of complete inactivity
                 val inactiveDuration = now - lastActiveTimeMillis
                 if (inactiveDuration > 10000) {
                     pauseTracking(isAuto = true)
@@ -150,11 +157,8 @@ class StartHikeActivity : AppCompatActivity() {
             if (!isTracking) {
                 checkAndRequestPermissions()
             } else {
-                if (isPaused) {
-                    resumeTracking(isAuto = false)
-                } else {
-                    pauseTracking(isAuto = false)
-                }
+                if (isPaused) resumeTracking(isAuto = false)
+                else pauseTracking(isAuto = false)
             }
         }
 
@@ -208,8 +212,8 @@ class StartHikeActivity : AppCompatActivity() {
         val now = SystemClock.elapsedRealtime()
         lastTickTime = now
         lastActiveTimeMillis = now
+        startWallTime = System.currentTimeMillis()
 
-        // UI Reset
         tvDistance.text = getString(R.string.distance_format, 0.0)
         tvSteps.text = getString(R.string.active_step_counter_default)
         tvCalories.text = getString(R.string.active_calorie_counter_default)
@@ -239,12 +243,10 @@ class StartHikeActivity : AppCompatActivity() {
         }
         fusedLocationClient.requestLocationUpdates(request, locationCallback!!, Looper.getMainLooper())
         Toast.makeText(this, "Hike started!", Toast.LENGTH_SHORT).show()
-
     }
 
     private fun handleLocation(location: Location) {
         if (location.accuracy > 50f) return
-
         handleElevation(location)
         handleDistanceAndSpeed(location)
     }
@@ -256,7 +258,6 @@ class StartHikeActivity : AppCompatActivity() {
         }
 
         val currentAltitude = location.altitude
-
         smoothedAltitude = smoothedAltitude?.let { (it * 0.8) + (currentAltitude * 0.2) } ?: currentAltitude
 
         if (isPaused) {
@@ -266,7 +267,6 @@ class StartHikeActivity : AppCompatActivity() {
 
         lastAltitude?.let { last ->
             val diff = smoothedAltitude!! - last
-
             if (diff > 1.0) {
                 elevationGain += diff
                 lastAltitude = smoothedAltitude
@@ -311,15 +311,16 @@ class StartHikeActivity : AppCompatActivity() {
             return
         }
 
-        if (calculatedSpeedKmh > 25.0) {
+        if (calculatedSpeedKmh > maxValidSeedKMH) {
             lastLocation = location
             return
         }
+
         lastActiveTimeMillis = SystemClock.elapsedRealtime()
         currentGpsSpeedKmh = gpsSpeedKmh
         totalDistanceKm += (distanceMeters / 1000.0)
 
-        if (gpsSpeedKmh > maxSpeedKmh && gpsSpeedKmh <= 35.0) maxSpeedKmh = gpsSpeedKmh
+        if (gpsSpeedKmh > maxSpeedKmh) maxSpeedKmh = gpsSpeedKmh
 
         val currentPace = if (calculatedSpeedKmh > 0.1) 60.0 / calculatedSpeedKmh else 0.0
         if (currentPace > 0 && (bestPaceMinPerKm == 0.0 || currentPace < bestPaceMinPerKm)) {
@@ -336,11 +337,8 @@ class StartHikeActivity : AppCompatActivity() {
                 if (!isTracking) return
 
                 if (isPaused) {
-                    if (!isManualPause) {
-                        resumeTracking(isAuto = true)
-                    } else {
-                        return
-                    }
+                    if (!isManualPause) resumeTracking(isAuto = true)
+                    else return
                 }
 
                 lastActiveTimeMillis = SystemClock.elapsedRealtime()
@@ -389,9 +387,7 @@ class StartHikeActivity : AppCompatActivity() {
         if (!isTracking) return
         isTracking = false
 
-        locationCallback?.let {
-            fusedLocationClient.removeLocationUpdates(it)
-        }
+        locationCallback?.let { fusedLocationClient.removeLocationUpdates(it) }
         locationCallback = null
 
         stepDetectorSensor?.let { sensorManager.unregisterListener(stepListener) }
@@ -399,20 +395,17 @@ class StartHikeActivity : AppCompatActivity() {
     }
 
     private fun calculateCalories(): Int {
-        val averageWeightKg = 70.0
         val averageHikingMET = 4.5
         val activeHours = activeTimeMillis / 3600000.0
-        return (averageHikingMET * averageWeightKg * activeHours).toInt()
+        return (averageHikingMET * userWeightKg * activeHours).toInt()
     }
 
     private fun navigateToSummary() {
         val elapsedHours = activeTimeMillis / 3600000.0
         val overallAvgSpeedKmh = if (elapsedHours > 0) totalDistanceKm / elapsedHours else 0.0
         val overallAvgPaceMinPerKm = if (totalDistanceKm > 0) (elapsedHours * 60) / totalDistanceKm else 0.0
-
         val endTime = System.currentTimeMillis()
-        val startTime = endTime - activeTimeMillis
-        val isoFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault())
+        val isoFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
         isoFormat.timeZone = java.util.TimeZone.getTimeZone("UTC")
 
         val intent = Intent(this, HikeSummaryActivity::class.java).apply {
@@ -426,7 +419,7 @@ class StartHikeActivity : AppCompatActivity() {
             putExtra("avgPace", overallAvgPaceMinPerKm)
             putExtra("bestPace", bestPaceMinPerKm)
             putExtra("elevationGain", elevationGain)
-            putExtra("startedAt", isoFormat.format(java.util.Date(startTime)))
+            putExtra("startedAt", isoFormat.format(java.util.Date(startWallTime)))
             putExtra("endedAt", isoFormat.format(java.util.Date(endTime)))
         }
 
@@ -452,9 +445,7 @@ class StartHikeActivity : AppCompatActivity() {
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(
-                    VibrationEffect.createOneShot(400, VibrationEffect.DEFAULT_AMPLITUDE)
-                )
+                vibrator.vibrate(VibrationEffect.createOneShot(400, VibrationEffect.DEFAULT_AMPLITUDE))
             } else {
                 @Suppress("DEPRECATION")
                 vibrator.vibrate(400)
