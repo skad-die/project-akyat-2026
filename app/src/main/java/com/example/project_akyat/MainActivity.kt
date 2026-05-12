@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import com.example.project_akyat.fragments.DashboardFragment
 import com.example.project_akyat.fragments.HistoryFragment
 import com.example.project_akyat.fragments.ProgressFragment
+import com.example.project_akyat.network.RetrofitClient
 import com.example.project_akyat.network.TokenManager
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -83,6 +84,7 @@ class MainActivity : AppCompatActivity() {
 
                 R.id.nav_logout -> {
                     TokenManager(this).clearToken()
+                    RetrofitClient.invalidate()
                     Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show()
                     val intent = Intent(this, LoginActivity::class.java)
                     intent.flags =
