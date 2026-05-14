@@ -25,7 +25,10 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "akyat_db"
-                ).build().also { INSTANCE = it }
+                )
+                    .fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
+                    .build()
+                    .also { INSTANCE = it }
             }
         }
     }

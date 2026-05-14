@@ -11,7 +11,8 @@ import com.example.project_akyat.R
 import com.example.project_akyat.model.local.HikeEntity
 
 class HikeAdapter(
-    private val onUploadClick: (HikeEntity) -> Unit
+    private val onUploadClick: (HikeEntity) -> Unit,
+    private val onDeleteClick: (HikeEntity) -> Unit
 ) : RecyclerView.Adapter<HikeAdapter.HikeViewHolder>() {
 
     private var hikes = listOf<HikeEntity>()
@@ -28,6 +29,7 @@ class HikeAdapter(
         val tvDuration: TextView = view.findViewById(R.id.tvStatDuration)
         val tvBadge: TextView = view.findViewById(R.id.tvDifficultyBadge)
         val btnUpload: Button = view.findViewById(R.id.btnUpload)
+        val btnDelete: Button = view.findViewById(R.id.btnDelete)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HikeViewHolder {
@@ -43,6 +45,7 @@ class HikeAdapter(
         holder.tvDistance.text = context.getString(R.string.distance_format, hike.distanceKm)
         holder.tvElevation.text = context.getString(R.string.elevation_format, hike.gainMeters)
         holder.tvDuration.text = formatDuration(hike.durationSeconds)
+        holder.btnDelete.setOnClickListener { onDeleteClick(hike) }
 
         val (diffText, diffColor, diffBg) = when {
             hike.gainMeters < 300 -> {

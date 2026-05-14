@@ -49,7 +49,6 @@ class HistoryFragment : Fragment() {
         repo = HikeRepository(dao)
 
         setupRecyclerView()
-
         observeHikes()
     }
 
@@ -60,6 +59,20 @@ class HistoryFragment : Fragment() {
                     uploadHike(hike)
                 } else {
                     Toast.makeText(requireContext(), "No internet connection", Toast.LENGTH_SHORT).show()
+                }
+            },
+            onDeleteClick = { hike ->
+                when {
+                    !hike.synced || hike.serverId == null -> {
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            repo.delete(hike)
+                            Toast.makeText(requireContext(), "Deleted!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    !isOnline() -> {
+                        Toast.makeText(requireContext(), "No internet connection", Toast.LENGTH_SHORT).show()
+                    }
+                    else -> deleteHike(hike)
                 }
             }
         )
@@ -81,7 +94,6 @@ class HistoryFragment : Fragment() {
                 } else {
                     tvEmptyState.visibility = View.GONE
                     rvHikeHistory.visibility = View.VISIBLE
-
                     hikeAdapter.submitList(hikes)
                 }
             }
@@ -94,7 +106,9 @@ class HistoryFragment : Fragment() {
                 val api = RetrofitClient.create(requireContext())
                 val response = api.createHike(hike.toRequest())
                 if (response.isSuccessful) {
-                    repo.update(hike.copy(synced = true))
+                    val serverId = response.body()?.id
+                    android.util.Log.d("UPLOAD", "serverId: $serverId, hike.id: ${hike.id}")
+                    repo.update(hike.copy(synced = true, serverId = serverId))
                     Toast.makeText(requireContext(), "Uploaded!", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(requireContext(), "Upload failed", Toast.LENGTH_SHORT).show()
@@ -105,9 +119,33 @@ class HistoryFragment : Fragment() {
         }
     }
 
+    private fun deleteHike(hike: HikeEntity) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                android.util.Log.d("DELETE", "serverId: ${hike.serverId}")
+                val api = RetrofitClient.create(requireContext())
+                val response = api.deleteHike(hike.serverId!!)
+                android.util.Log.d("DELETE", "response code: ${response.code()}")
+                android.util.Log.d("DELETE", "response body: ${response.errorBody()?.string()}")
+                if (response.isSuccessful) {
+                    repo.delete(hike)
+                    Toast.makeText(requireContext(), "Deleted!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), "Delete failed", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("DELETE", "exception: ${e.message}")
+                Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     private fun isOnline(): Boolean {
         val cm = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val caps = cm.getNetworkCapabilities(cm.activeNetwork ?: return false) ?: return false
-        return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        val network = cm.activeNetwork ?: return false
+        val caps = cm.getNetworkCapabilities(network) ?: return false
+        return caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
     }
 }

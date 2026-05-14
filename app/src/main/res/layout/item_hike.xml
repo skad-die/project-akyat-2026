@@ -1,6 +1,7 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
@@ -33,7 +34,8 @@
             android:paddingHorizontal="12dp"
             android:paddingVertical="4dp"
             android:textSize="12sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="RelativeOverlap" />
 
         <TextView
             android:id="@+id/tvHikeDate"
@@ -85,16 +87,32 @@
                 app:drawableStartCompat="@drawable/ic_time" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btnUpload"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+        <LinearLayout
+            android:id="@+id/actionsContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/statsContainer"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="8dp"
-            android:text="Upload"
-            android:visibility="gone" />
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnUpload"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/upload"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btnDelete"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/delete"
+                android:textColor="@color/hard_text" />
+
+        </LinearLayout>
 
     </RelativeLayout>
 </com.google.android.material.card.MaterialCardView>

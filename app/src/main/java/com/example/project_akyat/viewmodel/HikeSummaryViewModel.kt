@@ -38,10 +38,11 @@ class HikeSummaryViewModel(application: Application) : AndroidViewModel(applicat
             try {
                 val response = api.createHike(hike.toRequest())
                 if (response.isSuccessful) {
-                    repo.update(hike.copy(synced = true))
+                    val serverId = response.body()?.id  // add this
+                    repo.update(hike.copy(synced = true, serverId = serverId))
                 }
             } catch (e: Exception) {
-                // no internet or server down — will retry next save
+
             }
         }
     }

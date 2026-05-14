@@ -20,5 +20,6 @@ data class HikeEntity(
     val maxMeters: Double = 0.0,
     val startedAt: String,
     val endedAt: String,
-    val synced: Boolean = false
+    val synced: Boolean = false,
+    val serverId: String? = null
 )

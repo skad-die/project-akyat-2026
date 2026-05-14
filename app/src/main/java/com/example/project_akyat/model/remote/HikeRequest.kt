@@ -1,8 +1,11 @@
 package com.example.project_akyat.model.remote
 
 import com.example.project_akyat.model.local.HikeEntity
+import com.google.gson.annotations.SerializedName
 
 data class HikeRequest(
+    @SerializedName("_id")
+    val id: String? = null,
     val durationSeconds: Int,
     val distanceKm: Double,
     val steps: Int,
