@@ -1,22 +1,349 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="?android:attr/colorBackground"
     tools:context=".fragments.DashboardFragment">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Dashboard Fragment Placeholder" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingTop="24dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="140dp">
+
+            <!-- HEADER -->
+            <TextView
+                android:id="@+id/tvHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/recent_activity"
+                android:textSize="20sp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="-0.02"
+                android:textColor="?android:attr/textColorPrimary" />
+
+            <!-- LATEST HIKE -->
+            <LinearLayout
+                android:id="@+id/layoutLatestSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvLatestLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/latest_hike"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.18"
+                    android:textColor="?attr/colorPrimary" />
+
+                <LinearLayout
+                    android:id="@+id/cardLatest"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:background="@drawable/bg_dashboard_section">
+
+                    <TextView
+                        android:id="@+id/tvLatestDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/placeholder_metric"
+                        android:textSize="13sp"
+                        android:textColor="?android:attr/textColorSecondary" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvLatestDistance"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/placeholder_metric"
+                                android:textSize="28sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="?android:attr/textColorPrimary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/kilometers"
+                                android:textSize="12sp"
+                                android:textColor="?android:attr/textColorSecondary" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvLatestDuration"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/placeholder_metric"
+                                android:textSize="28sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="?android:attr/textColorPrimary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/duration"
+                                android:textSize="12sp"
+                                android:textColor="?android:attr/textColorSecondary" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="20dp"
+                        android:background="?attr/colorOutlineVariant" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvLatestCalories"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/placeholder_metric"
+                                android:textSize="22sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="?android:attr/textColorPrimary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/calories"
+                                android:textSize="12sp"
+                                android:textColor="?android:attr/textColorSecondary" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvLatestElevation"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/placeholder_metric"
+                                android:textSize="22sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="?android:attr/textColorPrimary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/elevation_gain"
+                                android:textSize="12sp"
+                                android:textColor="?android:attr/textColorSecondary" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- PERFORMANCE -->
+            <LinearLayout
+                android:id="@+id/layoutPerformance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvPerformanceLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/performance"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.18"
+                    android:textColor="?attr/colorPrimary" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:background="@drawable/bg_dashboard_section">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvAvgSpeed"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/placeholder_metric"
+                                android:textSize="22sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="?android:attr/textColorPrimary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/average_speed"
+                                android:textSize="12sp"
+                                android:textColor="?android:attr/textColorSecondary" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvMaxSpeed"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/placeholder_metric"
+                                android:textSize="22sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="?android:attr/textColorPrimary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/max_speed_"
+                                android:textSize="12sp"
+                                android:textColor="?android:attr/textColorSecondary" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="20dp"
+                        android:background="?attr/colorOutlineVariant" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvAvgPace"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/placeholder_metric"
+                                android:textSize="22sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="?android:attr/textColorPrimary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/average_pace"
+                                android:textSize="12sp"
+                                android:textColor="?android:attr/textColorSecondary" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvBestPace"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/placeholder_metric"
+                                android:textSize="22sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="?android:attr/textColorPrimary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/best_pace"
+                                android:textSize="12sp"
+                                android:textColor="?android:attr/textColorSecondary" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddHike"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="24dp"
+        android:importantForAccessibility="no"
         android:src="@android:drawable/ic_input_add"
-        android:layout_gravity="bottom|end" />
-</FrameLayout>
+        app:backgroundTint="?attr/colorPrimary"
+        app:tint="?android:attr/textColorPrimaryInverse" />
+
+</RelativeLayout>

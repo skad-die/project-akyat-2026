@@ -73,5 +73,17 @@
     <string name="sign_up">Sign up</string>
     <string name="already_have_an_account_login">Already have an account? Login</string>
     <string name="name">Name</string>
+    <string name="recent_activity">Recent Activity</string>
+    <string name="latest_hike">LATEST HIKE</string>
+    <string name="placeholder_metric">—</string>
+    <string name="kilometers">Kilometers</string>
+    <string name="duration">Duration</string>
+    <string name="calories">Calories</string>
+    <string name="elevation_gain">Elevation Gain</string>
+    <string name="performance">PERFORMANCE</string>
+    <string name="average_speed">Average Speed</string>
+    <string name="max_speed_">Max Speed</string>
+    <string name="average_pace">Average Pace</string>
+    <string name="best_pace">Best Pace</string>
 
 </resources>

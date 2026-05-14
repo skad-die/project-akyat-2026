@@ -2,71 +2,57 @@ package com.example.project_akyat.fragments
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.project_akyat.StartHikeActivity
 import com.example.project_akyat.R
+import com.example.project_akyat.model.HikeRepository
+import com.example.project_akyat.model.local.db.AppDatabase
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [DashboardFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class DashboardFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_dashboard, container, false)
-    }
+    ): View = inflater.inflate(R.layout.fragment_dashboard, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val fab = view.findViewById<FloatingActionButton>(R.id.fabAddHike)
-        fab.setOnClickListener {
+        view.findViewById<FloatingActionButton>(R.id.fabAddHike).setOnClickListener {
             startActivity(Intent(requireContext(), StartHikeActivity::class.java))
+        }
+
+        val repo = HikeRepository(AppDatabase.getInstance(requireContext()).hikeDao())
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val hikes = repo.allHikes.first()
+            val latest = hikes.firstOrNull()
+
+            if (latest != null) {
+                view.findViewById<TextView>(R.id.tvLatestDate).text = latest.startedAt
+                view.findViewById<TextView>(R.id.tvLatestDistance).text = "%.2f".format(latest.distanceKm)
+                view.findViewById<TextView>(R.id.tvLatestDuration).text = formatDuration(latest.durationSeconds)
+                view.findViewById<TextView>(R.id.tvLatestCalories).text = latest.calories.toString()
+                view.findViewById<TextView>(R.id.tvLatestElevation).text = "%.0f".format(latest.gainMeters)
+                view.findViewById<TextView>(R.id.tvAvgSpeed).text = "%.1f".format(latest.avgKmh)
+                view.findViewById<TextView>(R.id.tvMaxSpeed).text = "%.1f".format(latest.maxKmh)
+                view.findViewById<TextView>(R.id.tvAvgPace).text = "%.1f".format(latest.avgMinPerKm)
+                view.findViewById<TextView>(R.id.tvBestPace).text = "%.1f".format(latest.bestMinPerKm)
+            }
         }
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment DashboardFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            DashboardFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    private fun formatDuration(seconds: Int): String {
+        val h = seconds / 3600
+        val m = (seconds % 3600) / 60
+        return "${h}h ${m}m"
     }
 }
