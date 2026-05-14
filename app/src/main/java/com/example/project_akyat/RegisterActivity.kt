@@ -6,8 +6,10 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.project_akyat.model.remote.RegisterRequest
 import com.example.project_akyat.network.RetrofitClient
+import kotlinx.coroutines.launch
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -33,12 +35,12 @@ class RegisterActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            if(password.length < 8) {
+            if (password.length < 8) {
                 etPassword.error = "Password must be at least 8 characters"
                 return@setOnClickListener
             }
 
-            if(password != confirmPassword) {
+            if (password != confirmPassword) {
                 etConfirmPassword.error = "Passwords do not match"
                 return@setOnClickListener
             }
@@ -61,21 +63,25 @@ class RegisterActivity : AppCompatActivity() {
         val request = RegisterRequest(name, email, password)
         val api = RetrofitClient.create(this)
 
-        api.register(request).enqueue(object : retrofit2.Callback<Void> {
-            override fun onResponse(call: retrofit2.Call<Void>, response: retrofit2.Response<Void>) {
+        lifecycleScope.launch {
+            try {
+                val response = api.register(request)
+
                 if (response.isSuccessful) {
                     Toast.makeText(this@RegisterActivity, "Registered successfully", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this@RegisterActivity, LoginActivity::class.java))
                     finish()
                 } else {
-                    Toast.makeText(this@RegisterActivity, "Error: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@RegisterActivity,
+                        "Error: ${response.code()} ${response.errorBody()?.string()}",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
-            }
 
-            override fun onFailure(
-                call: retrofit2.Call<Void>, t: Throwable) {
-                Toast.makeText(this@RegisterActivity, "Failed: ${t.message}", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(this@RegisterActivity, "Failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-        })
+        }
     }
 }

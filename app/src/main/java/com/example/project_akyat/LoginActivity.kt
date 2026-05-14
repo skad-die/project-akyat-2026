@@ -7,10 +7,11 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.project_akyat.model.remote.LoginRequest
-import com.example.project_akyat.model.remote.LoginResponse
 import com.example.project_akyat.network.RetrofitClient
 import com.example.project_akyat.network.TokenManager
+import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
 
@@ -55,33 +56,31 @@ class LoginActivity : AppCompatActivity() {
         val api = RetrofitClient.create(this)
         val tokenManager = TokenManager(this)
 
-        api.login(request).enqueue(object : retrofit2.Callback<LoginResponse> {
-            override fun onResponse(
-                call: retrofit2.Call<LoginResponse>,
-                response: retrofit2.Response<LoginResponse>
-            ) {
+        lifecycleScope.launch {
+            try {
+                val response = api.login(request)
+
                 if (response.isSuccessful) {
                     val token = response.body()?.token
 
                     if (token != null) {
                         tokenManager.saveToken(token)
+
                         val intent = Intent(this@LoginActivity, MainActivity::class.java)
                         intent.flags =
                             Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-
                         startActivity(intent)
                         finish()
                     } else {
                         Toast.makeText(this@LoginActivity, "Invalid response", Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    Toast.makeText(this@LoginActivity, "Login failed", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@LoginActivity, "Login failed: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
-            }
 
-            override fun onFailure(call: retrofit2.Call<LoginResponse>, t: Throwable) {
-                Toast.makeText(this@LoginActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(this@LoginActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-        })
+        }
     }
 }

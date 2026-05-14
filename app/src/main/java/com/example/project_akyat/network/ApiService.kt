@@ -5,7 +5,6 @@ import com.example.project_akyat.model.remote.LoginRequest
 import com.example.project_akyat.model.remote.LoginResponse
 import com.example.project_akyat.model.remote.MeResponse
 import com.example.project_akyat.model.remote.RegisterRequest
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -15,10 +14,10 @@ import retrofit2.http.Path
 
 interface ApiService {
     @POST("login")
-    fun login(@Body request: LoginRequest): Call<LoginResponse>
+    suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
     @POST("register")
-    fun register(@Body request: RegisterRequest): Call<Void>
+    suspend fun register(@Body request: RegisterRequest): Response<Unit>
 
     @POST("hikes")
     suspend fun createHike(@Body hike: HikeRequest): Response<HikeRequest>
