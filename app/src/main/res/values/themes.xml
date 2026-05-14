@@ -3,6 +3,20 @@
     <style name="Base.Theme.ProjectAkyat" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="bottomNavigationStyle">@style/Widget.Material3.BottomNavigationView</item>
+
+    </style>
+
+    <style name="BottomNav.TextActive" parent="">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+    </style>
+
+    <style name="BottomNav.TextInactive" parent="">
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
     </style>
 
     <style name="Theme.ProjectAkyat" parent="Base.Theme.ProjectAkyat" />

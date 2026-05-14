@@ -3,6 +3,7 @@ package com.example.project_akyat.network
 import com.example.project_akyat.model.remote.HikeRequest
 import com.example.project_akyat.model.remote.LoginRequest
 import com.example.project_akyat.model.remote.LoginResponse
+import com.example.project_akyat.model.remote.MeResponse
 import com.example.project_akyat.model.remote.RegisterRequest
 import retrofit2.Call
 import retrofit2.Response
@@ -27,4 +28,7 @@ interface ApiService {
 
     @DELETE("hikes/{id}")
     suspend fun deleteHike(@Path("id") id: String): Response<Unit>
+
+    @GET("me")
+    suspend fun getMe(): Response<MeResponse>
 }
