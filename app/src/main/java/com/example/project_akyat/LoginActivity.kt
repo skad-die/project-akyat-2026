@@ -2,9 +2,11 @@ package com.example.project_akyat
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -14,6 +16,10 @@ import com.example.project_akyat.network.TokenManager
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
+    private lateinit var tvLoginError: TextView
+    private lateinit var btnLogin: Button
+    private lateinit var progressBar: ProgressBar
+    private lateinit var rootLayout: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,21 +28,28 @@ class LoginActivity : AppCompatActivity() {
 
         val etEmail = findViewById<EditText>(R.id.etEmail)
         val etPassword = findViewById<EditText>(R.id.etPassword)
-        val btnLogin = findViewById<Button>(R.id.btnLogin)
+        btnLogin = findViewById(R.id.btnLogin)
         val btnGoToRegister = findViewById<Button>(R.id.btnGoToRegister)
+        tvLoginError = findViewById(R.id.tvLoginError)
+        progressBar = findViewById(R.id.progressBar)
+        rootLayout = findViewById(R.id.main)
 
         btnLogin.setOnClickListener {
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString().trim()
 
-            // TODO: Better Input validations!
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+            imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+
+            tvLoginError.text = ""
+
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "All fields required", Toast.LENGTH_SHORT).show()
+                tvLoginError.text = getString(R.string.all_fields_required)
                 return@setOnClickListener
             }
 
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(this, "Invalid email or password", Toast.LENGTH_SHORT).show()
+                tvLoginError.text = getString(R.string.invalid_email_or_password)
                 return@setOnClickListener
             }
 
@@ -57,6 +70,9 @@ class LoginActivity : AppCompatActivity() {
         val tokenManager = TokenManager(this)
 
         lifecycleScope.launch {
+            btnLogin.isEnabled = false
+            progressBar.visibility = View.VISIBLE
+            rootLayout.animate().alpha(0.4f).setDuration(200).start()
             try {
                 val response = api.login(request)
 
@@ -72,14 +88,18 @@ class LoginActivity : AppCompatActivity() {
                         startActivity(intent)
                         finish()
                     } else {
-                        Toast.makeText(this@LoginActivity, "Invalid response", Toast.LENGTH_SHORT).show()
+                        tvLoginError.text = getString(R.string.invalid_response_from_server)
                     }
                 } else {
-                    Toast.makeText(this@LoginActivity, "Login failed: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    tvLoginError.text = getString(R.string.login_failed_invalid_credentials)
                 }
 
             } catch (e: Exception) {
-                Toast.makeText(this@LoginActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                tvLoginError.text = getString(R.string.network_error_try_again)
+            } finally {
+                btnLogin.isEnabled = true
+                progressBar.visibility = View.GONE
+                rootLayout.animate().alpha(1f).setDuration(200).start()
             }
         }
     }
