@@ -65,18 +65,25 @@ class HistoryFragment : Fragment() {
                 }
             },
             onDeleteClick = { hike ->
-                when {
-                    !hike.synced || hike.serverId == null -> {
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            repo.delete(hike)
-                            Toast.makeText(requireContext(), "Deleted!", Toast.LENGTH_SHORT).show()
+                android.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Delete Hike")
+                    .setMessage("Are you sure you want to delete this hike?")
+                    .setPositiveButton("Delete") { _, _ ->
+                        when {
+                            !hike.synced || hike.serverId == null -> {
+                                viewLifecycleOwner.lifecycleScope.launch {
+                                    repo.delete(hike)
+                                    Toast.makeText(requireContext(), "Deleted!", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                            !isOnline() -> {
+                                Toast.makeText(requireContext(), "No internet connection", Toast.LENGTH_SHORT).show()
+                            }
+                            else -> deleteHike(hike)
                         }
                     }
-                    !isOnline() -> {
-                        Toast.makeText(requireContext(), "No internet connection", Toast.LENGTH_SHORT).show()
-                    }
-                    else -> deleteHike(hike)
-                }
+                    .setNegativeButton("Cancel", null)
+                    .show()
             }
         )
 

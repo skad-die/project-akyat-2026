@@ -12,6 +12,8 @@ import com.example.project_akyat.StartHikeActivity
 import com.example.project_akyat.R
 import com.example.project_akyat.model.HikeRepository
 import com.example.project_akyat.model.local.db.AppDatabase
+import com.example.project_akyat.utils.formatDate
+import com.example.project_akyat.utils.formatDuration
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -37,7 +39,7 @@ class DashboardFragment : Fragment() {
             val latest = hikes.firstOrNull()
 
             if (latest != null) {
-                view.findViewById<TextView>(R.id.tvLatestDate).text = latest.startedAt
+                view.findViewById<TextView>(R.id.tvLatestDate).text = formatDate(latest.startedAt)
                 view.findViewById<TextView>(R.id.tvLatestDistance).text = "%.2f".format(latest.distanceKm)
                 view.findViewById<TextView>(R.id.tvLatestDuration).text = formatDuration(latest.durationSeconds)
                 view.findViewById<TextView>(R.id.tvLatestCalories).text = latest.calories.toString()
@@ -48,11 +50,5 @@ class DashboardFragment : Fragment() {
                 view.findViewById<TextView>(R.id.tvBestPace).text = "%.1f".format(latest.bestMinPerKm)
             }
         }
-    }
-
-    private fun formatDuration(seconds: Int): String {
-        val h = seconds / 3600
-        val m = (seconds % 3600) / 60
-        return "${h}h ${m}m"
     }
 }

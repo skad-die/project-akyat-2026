@@ -7,7 +7,7 @@
     <string name="avg_speed_format">%.1f km/hr</string>
     <string name="pace_format">%s /km</string>
     <string name="calorie_format">%d kcal</string>
-    <string name="elevation_format">Elevation: ↑ %.0fm</string>
+    <string name="elevation_format">↑ %.0fm</string>
 
     <string name="hike_statistics">Hike Statistics</string>
     <string name="active_duration">00:00:00</string>

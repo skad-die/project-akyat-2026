@@ -4,29 +4,38 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground"
     tools:context=".fragments.HistoryFragment">
 
     <RelativeLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:paddingHorizontal="20dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="8dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/hike_history"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            app:iconTint="?attr/colorControlNormal"/>
+            android:textSize="24sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="?android:attr/textColorPrimary"/>
 
         <TextView
             android:id="@+id/tvHikeCount"
+            android:layout_marginTop="12dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="12dp"
+            android:background="@drawable/bg_dashboard_section"
             android:text="@string/_0_hikes"
-            android:textColor="#757575"/>
+            android:textSize="13sp"
+            android:textColor="?android:attr/textColorSecondary"/>
     </RelativeLayout>
 
     <TextView
@@ -35,6 +44,8 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:text="@string/no_hikes_yet"
+        android:textSize="15sp"
+        android:textColor="?android:attr/textColorSecondary"
         android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -43,6 +54,8 @@
         android:layout_height="match_parent"
         android:layout_below="@id/headerLayout"
         android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="4dp"
         android:paddingBottom="80dp"
         tools:listitem="@layout/item_hike" />
 

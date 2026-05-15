@@ -9,6 +9,8 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.project_akyat.R
 import com.example.project_akyat.model.local.HikeEntity
+import com.example.project_akyat.utils.formatDate
+import com.example.project_akyat.utils.formatDuration
 
 class HikeAdapter(
     private val onUploadClick: (HikeEntity) -> Unit,
@@ -41,7 +43,7 @@ class HikeAdapter(
         val hike = hikes[position]
         val context = holder.itemView.context
 
-        holder.tvDate.text = hike.startedAt // TODO Refactor into readable format
+        holder.tvDate.text = formatDate(hike.startedAt)
         holder.tvDistance.text = context.getString(R.string.distance_format, hike.distanceKm)
         holder.tvElevation.text = context.getString(R.string.elevation_format, hike.gainMeters)
         holder.tvDuration.text = formatDuration(hike.durationSeconds)
@@ -70,10 +72,4 @@ class HikeAdapter(
     }
 
     override fun getItemCount() = hikes.size
-
-    private fun formatDuration(seconds: Int): String {
-        val h = seconds / 3600
-        val m = (seconds % 3600) / 60
-        return "${h}h ${m}m"
-    }
 }

@@ -1,118 +1,128 @@
-<com.google.android.material.card.MaterialCardView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="8dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="2dp"
-    app:strokeWidth="1dp"
-    app:strokeColor="#F0F0F0">
+    android:orientation="vertical"
+    android:layout_marginVertical="6dp"
+    android:background="@drawable/bg_dashboard_section"
+    android:padding="16dp">
 
+    <!-- TOP ROW: name + badge -->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/tvHikeName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="18sp"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@id/tvDifficultyBadge"
+            android:layout_marginEnd="8dp"
             android:text="@string/untitled_hike"
-            android:layout_alignParentStart="true"/>
+            android:textSize="17sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="?android:attr/textColorPrimary"/>
 
         <TextView
             android:id="@+id/tvDifficultyBadge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_alignTop="@id/tvHikeName"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="4dp"
-            android:textSize="12sp"
+            android:layout_centerVertical="true"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="3dp"
+            android:textSize="11sp"
             android:textStyle="bold"
             tools:ignore="RelativeOverlap" />
 
-        <TextView
-            android:id="@+id/tvHikeDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tvHikeName"
-            android:layout_marginTop="4dp"
-            app:iconTint="?attr/colorControlNormal"
-            app:drawableStartCompat="@drawable/ic_calendar" />
-
-        <View
-            android:id="@+id/hikeDivider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_below="@id/tvHikeDate"
-            android:layout_marginTop="12dp"
-            android:background="#F0F0F0" />
-
-        <LinearLayout
-            android:id="@+id/statsContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/hikeDivider"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tvStatDistance"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:drawablePadding="4dp"
-                app:drawableStartCompat="@drawable/ic_location" />
-
-            <TextView
-                android:id="@+id/tvStatElevation"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:drawablePadding="4dp"
-                app:drawableStartCompat="@drawable/ic_climb" />
-
-            <TextView
-                android:id="@+id/tvStatDuration"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:drawablePadding="4dp"
-                app:drawableStartCompat="@drawable/ic_time" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/actionsContainer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/statsContainer"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btnUpload"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/upload"
-                android:visibility="gone" />
-
-            <Button
-                android:id="@+id/btnDelete"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/delete"
-                android:textColor="@color/hard_text" />
-
-        </LinearLayout>
-
     </RelativeLayout>
-</com.google.android.material.card.MaterialCardView>
+
+    <!-- DATE -->
+    <TextView
+        android:id="@+id/tvHikeDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textSize="13sp"
+        android:textColor="?android:attr/textColorSecondary"
+        app:drawableStartCompat="@drawable/ic_calendar"
+        app:iconTint="?attr/colorControlNormal"/>
+
+    <!-- DIVIDER -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="?attr/colorOutlineVariant"/>
+
+    <!-- STATS ROW -->
+    <LinearLayout
+        android:id="@+id/statsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvStatDistance"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="13sp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:drawablePadding="4dp"
+            app:drawableStartCompat="@drawable/ic_location"/>
+
+        <TextView
+            android:id="@+id/tvStatElevation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="13sp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:drawablePadding="4dp"
+            app:drawableStartCompat="@drawable/ic_climb"/>
+
+        <TextView
+            android:id="@+id/tvStatDuration"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="13sp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:drawablePadding="4dp"
+            app:drawableStartCompat="@drawable/ic_time"/>
+
+    </LinearLayout>
+
+    <!-- ACTIONS -->
+    <LinearLayout
+        android:id="@+id/actionsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/btnUpload"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/upload"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/btnDelete"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/delete"
+            android:textColor="@color/hard_text"/>
+
+    </LinearLayout>
+
+</LinearLayout>
