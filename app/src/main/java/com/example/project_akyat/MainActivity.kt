@@ -7,6 +7,7 @@ import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -49,6 +50,17 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             replaceFragment(DashboardFragment(), getString(R.string.dashboard))
+        }
+
+        onBackPressedDispatcher.addCallback(this) {
+            android.app.AlertDialog.Builder(this@MainActivity)
+                .setTitle("Exit App?")
+                .setMessage("Are you sure you want to exit?")
+                .setPositiveButton("Exit") { _, _ ->
+                    finish()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
     }
 
