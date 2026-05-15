@@ -16,5 +16,9 @@ class HikeRepository(private val dao: HikeDao) {
 
     suspend fun getUnsynced(): List<HikeEntity> = dao.getUnsynced()
 
+    suspend fun upsert(hike: HikeEntity) = dao.upsert(hike)
+
+    suspend fun findByServerId(serverId: String) = dao.findByServerId(serverId)
+
     suspend fun getById(id: Int): HikeEntity? = dao.getById(id)
 }

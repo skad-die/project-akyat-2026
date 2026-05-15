@@ -33,3 +33,22 @@ fun HikeEntity.toRequest() = HikeRequest(
     startedAt       = startedAt,
     endedAt         = endedAt
 )
+
+fun HikeRequest.toEntity(localId: Int = 0) = HikeEntity(
+    id              = localId,
+    serverId        = this.id,
+    synced          = true,
+    durationSeconds = durationSeconds,
+    distanceKm      = distanceKm,
+    steps           = steps,
+    calories        = calories,
+    avgKmh          = speed.avgKmh,
+    maxKmh          = speed.maxKmh,
+    avgMinPerKm     = pace.avgMinPerKm,
+    bestMinPerKm    = pace.bestMinPerKm,
+    gainMeters      = elevation.gainMeters,
+    minMeters       = elevation.minMeters,
+    maxMeters       = elevation.maxMeters,
+    startedAt       = startedAt,
+    endedAt         = endedAt
+)

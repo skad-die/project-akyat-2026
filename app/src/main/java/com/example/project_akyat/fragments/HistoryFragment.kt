@@ -1,5 +1,6 @@
 package com.example.project_akyat.fragments
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -18,6 +19,7 @@ import com.example.project_akyat.adapters.HikeAdapter
 import com.example.project_akyat.model.HikeRepository
 import com.example.project_akyat.model.local.HikeEntity
 import com.example.project_akyat.model.local.db.AppDatabase
+import com.example.project_akyat.model.remote.toEntity
 import com.example.project_akyat.model.remote.toRequest
 import com.example.project_akyat.network.RetrofitClient
 import kotlinx.coroutines.flow.collectLatest
@@ -48,6 +50,7 @@ class HistoryFragment : Fragment() {
         val dao = AppDatabase.getInstance(requireContext()).hikeDao()
         repo = HikeRepository(dao)
 
+        syncFromServer()
         setupRecyclerView()
         observeHikes()
     }
@@ -83,6 +86,7 @@ class HistoryFragment : Fragment() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun observeHikes() {
         viewLifecycleOwner.lifecycleScope.launch {
             repo.allHikes.collectLatest { hikes ->
@@ -115,6 +119,24 @@ class HistoryFragment : Fragment() {
                 }
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun syncFromServer() {
+        if (!isOnline()) return
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val api = RetrofitClient.create(requireContext())
+                val response = api.getHikes()
+                if (response.isSuccessful) {
+                    response.body()?.forEach { hikeRequest ->
+                        val existing = repo.findByServerId(hikeRequest.id!!)
+                        repo.upsert(hikeRequest.toEntity(localId = existing?.id ?: 0))
+                    }
+                }
+            } catch (e: Exception) {
+                // silent fail
             }
         }
     }

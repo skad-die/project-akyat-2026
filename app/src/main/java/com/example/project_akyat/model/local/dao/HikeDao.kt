@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import com.example.project_akyat.model.local.HikeEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -19,6 +20,12 @@ interface HikeDao {
 
     @Delete
     suspend fun delete(hike: HikeEntity)
+
+    @Upsert
+    suspend fun upsert(hike: HikeEntity)
+
+    @Query("SELECT * FROM hikes WHERE serverId = :serverId LIMIT 1")
+    suspend fun findByServerId(serverId: String): HikeEntity?
 
     @Query("SELECT * FROM hikes ORDER BY id DESC")
     fun getAllHikes(): Flow<List<HikeEntity>>
