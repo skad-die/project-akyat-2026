@@ -24,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.project_akyat.utils.formatDuration
 import com.google.android.gms.location.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -514,14 +515,18 @@ class StartHikeActivity : AppCompatActivity() {
 
     private fun navigateToSummary() {
         val elapsedHours = activeTimeMillis / 3600000.0
-        val isoFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
+        val isoFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
 
-        isoFormatter.timeZone = TimeZone.getTimeZone("UTC")
+        val totalSecondsLong = activeTimeMillis / 1000
+        val totalSecondsInt = totalSecondsLong.toInt()
+        val durationString = formatDuration(totalSecondsInt)
 
         startActivity(
             Intent(this, HikeSummaryActivity::class.java).apply {
-                putExtra("duration", tvDuration.text.toString())
-                putExtra("durationSeconds", (activeTimeMillis / 1000).toInt())
+                putExtra("duration", durationString)
+                putExtra("durationSeconds", totalSecondsInt) // Pass Int here too
                 putExtra("distance", totalDistanceKm)
                 putExtra("steps", currentSteps)
                 putExtra("calories", calculateCalories())
@@ -535,7 +540,6 @@ class StartHikeActivity : AppCompatActivity() {
             }
         )
         finish()
-
     }
 
     private fun formatPace(pace: Double): String {
