@@ -25,17 +25,16 @@
 
         <TextView
             android:id="@+id/tvHikeCount"
-            android:layout_marginTop="12dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:paddingHorizontal="12dp"
             android:paddingVertical="12dp"
-            android:background="@drawable/bg_dashboard_section"
             android:text="@string/_0_hikes"
             android:textSize="13sp"
-            android:textColor="?android:attr/textColorSecondary"/>
+            android:textColor="?android:attr/textColorSecondary"
+            tools:ignore="RelativeOverlap" />
     </RelativeLayout>
 
     <TextView
