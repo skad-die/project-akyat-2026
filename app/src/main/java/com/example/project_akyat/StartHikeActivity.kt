@@ -204,11 +204,7 @@ class StartHikeActivity : AppCompatActivity() {
             if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true) {
                 startTracking()
             } else {
-                Toast.makeText(
-                    this,
-                    "Location permission denied.",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this, "Location permission denied.", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -486,7 +482,11 @@ class StartHikeActivity : AppCompatActivity() {
         val minutes = (activeTimeMillis / 60000) % 60
         val hours = activeTimeMillis / 3600000
 
-        tvDuration.text = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
+        tvDuration.text = if (isPaused) {
+            "PAUSED"
+        } else {
+            String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
+        }
         tvCalories.text = getString(R.string.calorie_format, calculateCalories())
 
         val elapsedHours = activeTimeMillis / 3600000.0
