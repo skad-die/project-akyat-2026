@@ -28,6 +28,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.gms.location.*
 import java.util.Locale
+import androidx.activity.addCallback
 
 class StartHikeActivity : AppCompatActivity() {
 
@@ -106,7 +107,7 @@ class StartHikeActivity : AppCompatActivity() {
             tvSpeedAvg.text = getString(R.string.avg_speed_format, averageSpeed)
 
             if (isPaused) {
-                tvPaceAvg.text = getString(R.string.pause)
+                tvDuration.text = getString(R.string.pause)
             } else {
                 tvPaceAvg.text = formatPace(averagePace)
             }
@@ -125,6 +126,21 @@ class StartHikeActivity : AppCompatActivity() {
                 val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
                 v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
                 insets
+            }
+        }
+        onBackPressedDispatcher.addCallback(this) {
+            if (isTracking) {
+                android.app.AlertDialog.Builder(this@StartHikeActivity)
+                    .setTitle("Discard Hike?")
+                    .setMessage("Tracking is in progress. Going back will discard your hike.")
+                    .setPositiveButton("Discard") { _, _ ->
+                        stopTracking()
+                        finish()
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            } else {
+                finish()
             }
         }
 
@@ -152,6 +168,23 @@ class StartHikeActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnPause)?.visibility = View.GONE
         btnStop.visibility = View.GONE
+
+        // ADD THIS
+        findViewById<android.widget.ImageButton>(R.id.btnBack).setOnClickListener {
+            if (isTracking) {
+                android.app.AlertDialog.Builder(this)
+                    .setTitle("Discard Hike?")
+                    .setMessage("Tracking is in progress. Going back will discard your hike.")
+                    .setPositiveButton("Discard") { _, _ ->
+                        stopTracking()
+                        finish()
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            } else {
+                finish()
+            }
+        }
 
         btnStartPause.setOnClickListener {
             if (!isTracking) {
@@ -454,6 +487,8 @@ class StartHikeActivity : AppCompatActivity() {
             e.printStackTrace()
         }
     }
+
+
 
     override fun onDestroy() {
         super.onDestroy()

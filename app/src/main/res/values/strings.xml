@@ -15,7 +15,7 @@
     <string name="speed_label">Speed:</string>
     <string name="active_speed">0.0 km/hr</string>
     <string name="active_avg_pace">Avg Pace:</string>
-    <string name="active_elevation">Elevation: ↑ 0m</string>
+    <string name="active_elevation">↑ 0m</string>
     <string name="active_calories">0 kcal</string>
     <string name="active_step_counter_default">0 steps</string>
     <string name="active_calorie_counter_default">0 calories</string>
@@ -46,7 +46,7 @@
     <string name="btn_stop">Stop</string>
     <string name="btn_save">Save</string>
     <string name="btn_discard">Discard</string>
-    <string name="pause">Pause</string>
+    <string name="pause">PAUSED</string>
     <string name="resume">Resume</string>
     <string name="tracking_paused">Tracking Paused</string>
     <string name="tracking_resumed">Tracking Resumed</string>
@@ -92,5 +92,8 @@
     <string name="invalid_response_from_server">Invalid response from server</string>
     <string name="password_must_be_at_least_8_characters">Password must be at least 8 characters</string>
     <string name="passwords_do_not_match">Passwords do not match</string>
+    <string name="elevation_label">Elevation</string>
+    <string name="back">back</string>
+    <string name="dot">·</string>
 
 </resources>
