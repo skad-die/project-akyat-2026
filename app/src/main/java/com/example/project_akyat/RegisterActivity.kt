@@ -2,9 +2,11 @@ package com.example.project_akyat
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.project_akyat.model.remote.RegisterRequest
@@ -12,6 +14,11 @@ import com.example.project_akyat.network.RetrofitClient
 import kotlinx.coroutines.launch
 
 class RegisterActivity : AppCompatActivity() {
+
+    private lateinit var tvRegError: TextView
+    private lateinit var btnRegister: Button
+    private lateinit var progressBar: ProgressBar
+    private lateinit var rootLayout: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,32 +28,41 @@ class RegisterActivity : AppCompatActivity() {
         val etEmail = findViewById<EditText>(R.id.etEmail)
         val etPassword = findViewById<EditText>(R.id.etPassword)
         val etConfirmPassword = findViewById<EditText>(R.id.etConfirmPassword)
-        val btnRegister = findViewById<Button>(R.id.btnRegister)
         val btnGoToLogin = findViewById<Button>(R.id.btnGoToLogin)
 
+        tvRegError = findViewById(R.id.tvRegError)
+        btnRegister = findViewById(R.id.btnRegister)
+        progressBar = findViewById(R.id.progressBar)
+        rootLayout = findViewById(android.R.id.content)
+
         btnRegister.setOnClickListener {
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+            imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+
             val name = etName.text.toString().trim()
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString().trim()
             val confirmPassword = etConfirmPassword.text.toString().trim()
 
+            tvRegError.text = ""
+
             if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "All fields required", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            if (password.length < 8) {
-                etPassword.error = "Password must be at least 8 characters"
-                return@setOnClickListener
-            }
-
-            if (password != confirmPassword) {
-                etConfirmPassword.error = "Passwords do not match"
+                tvRegError.text = getString(R.string.all_fields_required)
                 return@setOnClickListener
             }
 
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                etEmail.error = "Please enter a valid email address"
+                tvRegError.text = getString(R.string.invalid_email_or_password)
+                return@setOnClickListener
+            }
+
+            if (password.length < 8) {
+                tvRegError.text = getString(R.string.password_must_be_at_least_8_characters)
+                return@setOnClickListener
+            }
+
+            if (password != confirmPassword) {
+                tvRegError.text = getString(R.string.passwords_do_not_match)
                 return@setOnClickListener
             }
 
@@ -64,23 +80,29 @@ class RegisterActivity : AppCompatActivity() {
         val api = RetrofitClient.create(this)
 
         lifecycleScope.launch {
+            btnRegister.isEnabled = false
+            progressBar.visibility = View.VISIBLE
+            rootLayout.animate().alpha(0.4f).setDuration(200).start()
+
             try {
                 val response = api.register(request)
 
                 if (response.isSuccessful) {
-                    Toast.makeText(this@RegisterActivity, "Registered successfully", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this@RegisterActivity, LoginActivity::class.java))
                     finish()
                 } else {
-                    Toast.makeText(
-                        this@RegisterActivity,
-                        "Error: ${response.code()} ${response.errorBody()?.string()}",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    tvRegError.text = when (response.code()) {
+                        409 -> "An account with this email already exists."
+                        else -> "Registration failed. Please try again."
+                    }
                 }
 
             } catch (e: Exception) {
-                Toast.makeText(this@RegisterActivity, "Failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                tvRegError.text = getString(R.string.network_error_try_again)
+            } finally {
+                btnRegister.isEnabled = true
+                progressBar.visibility = View.GONE
+                rootLayout.animate().alpha(1f).setDuration(200).start()
             }
         }
     }

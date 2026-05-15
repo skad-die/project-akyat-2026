@@ -90,5 +90,7 @@
     <string name="network_error_try_again">Network error. Please try again.</string>
     <string name="login_failed_invalid_credentials">Login failed. Invalid credentials.</string>
     <string name="invalid_response_from_server">Invalid response from server</string>
+    <string name="password_must_be_at_least_8_characters">Password must be at least 8 characters</string>
+    <string name="passwords_do_not_match">Passwords do not match</string>
 
 </resources>

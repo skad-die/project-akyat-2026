@@ -33,6 +33,8 @@
 
     <EditText
         android:id="@+id/etEmail"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_below="@id/tvHeader"
@@ -45,10 +47,12 @@
         android:backgroundTint="?android:attr/colorForegroundInverse"
         android:textColor="?android:attr/textColorPrimary"
         android:textColorHint="?android:attr/textColorSecondary"
-        tools:ignore="RtlSymmetry" />
+        tools:ignore="RtlSymmetry,VisualLintTextFieldSize" />
 
     <EditText
         android:id="@+id/etPassword"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_below="@id/etEmail"
@@ -61,10 +65,12 @@
         android:backgroundTint="?android:attr/colorForegroundInverse"
         android:textColor="?android:attr/textColorPrimary"
         android:textColorHint="?android:attr/textColorSecondary"
-        tools:ignore="RtlSymmetry" />
+        tools:ignore="RtlSymmetry,VisualLintTextFieldSize" />
 
     <TextView
         android:id="@+id/tvLoginError"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/etPassword"
@@ -76,7 +82,10 @@
 
     <Button
         android:id="@+id/btnLogin"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:layout_width="match_parent"
+        android:layout_centerInParent="true"
         android:layout_height="54dp"
         android:layout_below="@id/tvLoginError"
         android:layout_marginTop="32dp"
@@ -84,7 +93,8 @@
         android:textAllCaps="false"
         android:textSize="16sp"
         android:textColor="#FFFFFF"
-        android:backgroundTint="?android:attr/colorPrimary"/>
+        android:backgroundTint="?android:attr/colorPrimary"
+        tools:ignore="VisualLintButtonSize" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -97,6 +107,8 @@
 
     <Button
         android:id="@+id/btnGoToRegister"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/progressBar"
@@ -104,5 +116,6 @@
         android:text="@string/create_account"
         android:textAllCaps="false"
         style="?android:attr/borderlessButtonStyle"
-        android:textColor="?android:attr/colorPrimary"/>
+        android:textColor="?android:attr/colorPrimary"
+        tools:ignore="VisualLintButtonSize" />
 </RelativeLayout>
